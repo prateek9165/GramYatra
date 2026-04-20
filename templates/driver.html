@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GramSafar – Driver Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--saffron:#FF6B00;--saffron-glow:#FFD4A8;--green:#1A7F4B;--green-light:#22A862;--sky:#0EA5E9;--cream:#FFF8F0;--white:#fff;--dark:#1A1208;--gray:#6B7280;--border:#E5E7EB;--red:#DC2626}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'DM Sans',sans-serif;background:#F8F9FA;color:var(--dark)}
+  .topbar{background:var(--green);color:white;padding:0 1.5rem;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99}
+  .brand{font-family:'Baloo 2',cursive;font-size:20px;font-weight:800}
+  .user-pill{background:rgba(255,255,255,0.2);padding:4px 12px;border-radius:20px;font-size:13px;display:flex;align-items:center;gap:6px}
+  .status-toggle{display:flex;align-items:center;gap:8px}
+  .toggle-label{font-size:13px;font-weight:500}
+  .toggle-switch{position:relative;width:48px;height:26px;cursor:pointer}
+  .toggle-switch input{opacity:0;width:0;height:0}
+  .toggle-slider{position:absolute;inset:0;background:#ccc;border-radius:13px;transition:0.3s}
+  .toggle-slider::before{content:'';position:absolute;left:3px;top:3px;width:20px;height:20px;background:white;border-radius:50%;transition:0.3s}
+  input:checked+.toggle-slider{background:var(--green-light)}
+  input:checked+.toggle-slider::before{transform:translateX(22px)}
+  .nav-btns{display:flex;gap:6px}
+  .nav-btn{color:rgba(255,255,255,0.8);font-size:13px;text-decoration:none;padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);transition:all 0.2s}
+  .nav-btn:hover{background:rgba(255,255,255,0.15);color:white}
+
+  .page{max-width:1100px;margin:0 auto;padding:2rem 1.5rem;display:grid;grid-template-columns:340px 1fr;gap:1.5rem}
+  
+  /* CARDS */
+  .card{background:white;border-radius:18px;border:1.5px solid var(--border);padding:1.5rem;margin-bottom:1rem}
+  .card-title{font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+  
+  /* STATUS BIG */
+  .status-big{border-radius:16px;padding:1.5rem;color:white;text-align:center;margin-bottom:1rem;transition:all 0.5s}
+  .status-big.active-status{background:linear-gradient(135deg,var(--green) 0%,var(--green-light) 100%)}
+  .status-big.inactive-status{background:linear-gradient(135deg,#9CA3AF 0%,#6B7280 100%)}
+  .status-emoji{font-size:3rem;margin-bottom:0.5rem}
+  .status-text{font-family:'Baloo 2',cursive;font-size:1.6rem;font-weight:800}
+  .status-sub{font-size:13px;opacity:0.85;margin-top:4px}
+  .big-toggle{background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.5);color:white;padding:10px 28px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:1rem;width:100%;font-family:'DM Sans',sans-serif}
+  .big-toggle:hover{background:rgba(255,255,255,0.3)}
+
+  /* METRICS */
+  .metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+  .metric{background:var(--cream);border-radius:12px;padding:1rem;text-align:center}
+  .metric-val{font-family:'Baloo 2',cursive;font-size:1.4rem;font-weight:800;color:var(--saffron)}
+  .metric-label{font-size:11px;color:var(--gray);margin-top:2px}
+
+  /* VEHICLE SELECT */
+  .vehicle-list{display:flex;flex-direction:column;gap:8px}
+  .vehicle-option{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border:2px solid var(--border);border-radius:12px;cursor:pointer;transition:all 0.2s}
+  .vehicle-option.selected,.vehicle-option:hover{border-color:var(--green);background:#F0FDF4}
+  .veh-left{display:flex;align-items:center;gap:10px}
+  .veh-icon{font-size:24px}
+  .veh-name{font-weight:600;font-size:14px}
+  .veh-sub{font-size:12px;color:var(--gray)}
+  .veh-check{width:20px;height:20px;border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s}
+  .vehicle-option.selected .veh-check{background:var(--green);border-color:var(--green);color:white}
+
+  /* TRIP LOG */
+  .trip-log{display:flex;flex-direction:column;gap:10px}
+  .trip-item{display:flex;gap:12px;align-items:flex-start}
+  .trip-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:3px}
+  .dot-green{background:var(--green)}
+  .dot-saffron{background:var(--saffron)}
+  .dot-gray{background:#D1D5DB}
+  .trip-info-title{font-size:14px;font-weight:600}
+  .trip-info-sub{font-size:12px;color:var(--gray)}
+
+  /* MAP MOCK */
+  .driver-map{background:linear-gradient(160deg,#E8F5EE 0%,#D1EDE2 100%);border-radius:14px;height:280px;position:relative;overflow:hidden;margin-bottom:1rem}
+  .map-grid-s{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.4) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.4) 1px,transparent 1px);background-size:40px 40px}
+  .road-h-s{position:absolute;height:10px;background:rgba(255,255,255,0.7);border-radius:2px}
+  .road-v-s{position:absolute;width:10px;background:rgba(255,255,255,0.7);border-radius:2px}
+  .driver-bus{position:absolute;left:45%;top:40%;font-size:36px;transform:translate(-50%,-50%);animation:drivePulse 2s ease-in-out infinite}
+  @keyframes drivePulse{0%,100%{filter:drop-shadow(0 0 0 rgba(26,127,75,0))}50%{filter:drop-shadow(0 0 8px rgba(26,127,75,0.5))}}
+  .loc-pulse{position:absolute;left:45%;top:40%;width:60px;height:60px;border-radius:50%;border:2px solid var(--green);transform:translate(-50%,-50%);animation:locPulse 2s ease-in-out infinite;opacity:0.5}
+  @keyframes locPulse{0%{transform:translate(-50%,-50%) scale(0.5);opacity:0.8}100%{transform:translate(-50%,-50%) scale(1.5);opacity:0}}
+  .tower-signal{position:absolute;font-size:20px}
+  .signal-line{position:absolute;height:2px;background:rgba(26,127,75,0.4);transform-origin:right center}
+
+  /* CELL TOWER STATUS */
+  .towers-status{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem}
+  .tower-card{background:white;border:1.5px solid var(--border);border-radius:10px;padding:0.8rem;text-align:center}
+  .tower-card.connected{border-color:var(--green);background:#F0FDF4}
+  .tower-name{font-size:11px;font-weight:700;color:var(--gray)}
+  .tower-strength{font-size:20px;margin:4px 0}
+  .tower-dist{font-size:11px;color:var(--gray)}
+  .bars{display:flex;gap:2px;justify-content:center;align-items:flex-end;margin-top:4px}
+  .bar{width:5px;background:var(--border);border-radius:2px}
+  .bar.lit{background:var(--green)}
+
+  /* SOS */
+  .sos-btn{width:100%;background:var(--red);color:white;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s}
+  .sos-btn:hover{background:#B91C1C;transform:scale(1.02)}
+
+  @media(max-width:768px){.page{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:10px">
+    <a href="{% url 'home' %}" style="text-decoration:none;color:white;font-size:20px">🚌</a>
+    <div>
+      <div class="brand">GramSafar</div>
+      <div style="font-size:12px;opacity:0.85">Driver Panel</div>
+    </div>
+  </div>
+  <div class="user-pill">🚗 Suresh Yadav &nbsp;·&nbsp; Driver</div>
+  <div class="nav-btns">
+    <a href="{% url 'consumer-page' %}" class="nav-btn">🚌 Consumer View</a>
+    <a href="{% url 'home' %}" class="nav-btn">← Home</a>
+    <a href="{% url 'login-page' %}" class="nav-btn">Logout</a>
+  </div>
+</div>
+
+<div class="page">
+  <!-- LEFT COLUMN -->
+  <div>
+    <!-- STATUS -->
+    <div class="status-big active-status" id="statusCard">
+      <div class="status-emoji" id="statusEmoji">🟢</div>
+      <div class="status-text" id="statusText">ON DUTY</div>
+      <div class="status-sub" id="statusSub">Location broadcasting · Updated 3s ago</div>
+      <button class="big-toggle" onclick="toggleDuty()">Go Inactive</button>
+    </div>
+
+    <!-- METRICS -->
+    <div class="metrics-grid">
+      <div class="metric"><div class="metric-val" id="todayKm">142</div><div class="metric-label">km Today</div></div>
+      <div class="metric"><div class="metric-val" id="todayTrips">6</div><div class="metric-label">Trips Done</div></div>
+      <div class="metric"><div class="metric-val" id="todayPassengers">187</div><div class="metric-label">Passengers</div></div>
+      <div class="metric"><div class="metric-val">4.8⭐</div><div class="metric-label">Rating</div></div>
+    </div>
+
+    <!-- VEHICLE SELECT -->
+    <div class="card">
+      <div class="card-title">🚌 Assigned Vehicle</div>
+      <div class="vehicle-list" id="vehicleList">
+        <div class="vehicle-option selected" onclick="selectVehicle(this,'MP-09-AB-1234','Indore-Gram Route')">
+          <div class="veh-left"><span class="veh-icon">🚌</span><div><div class="veh-name">MP-09-AB-1234</div><div class="veh-sub">Indore-Gram Route · 45 seats</div></div></div>
+          <div class="veh-check">✓</div>
+        </div>
+        <div class="vehicle-option" onclick="selectVehicle(this,'MP-09-GH-3456','Gram-Pithampur Route')">
+          <div class="veh-left"><span class="veh-icon">🚌</span><div><div class="veh-name">MP-09-GH-3456</div><div class="veh-sub">Gram-Pithampur Route · 40 seats</div></div></div>
+          <div class="veh-check"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SOS -->
+    <button class="sos-btn" onclick="triggerSOS()">🆘 Emergency Alert / SOS</button>
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div>
+    <!-- MAP -->
+    <div class="card" style="padding:1.2rem">
+      <div class="card-title">📡 Live Location Broadcast</div>
+      <div class="driver-map">
+        <div class="map-grid-s"></div>
+        <div class="road-h-s" style="top:40%;left:0;width:100%"></div>
+        <div class="road-v-s" style="left:45%;top:0;height:100%"></div>
+        <div class="loc-pulse"></div>
+        <div class="driver-bus">🚌</div>
+        <div class="tower-signal" style="top:10%;left:15%">📡</div>
+        <div class="tower-signal" style="top:10%;right:15%">📡</div>
+        <div class="tower-signal" style="bottom:10%;left:50%">📡</div>
+        <div style="position:absolute;top:12px;right:12px;background:white;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:4px">
+          <span class="live-dot" style="width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 1s infinite;display:inline-block"></span>
+          Broadcasting
+        </div>
+        <div style="position:absolute;bottom:12px;left:12px;background:white;border-radius:8px;padding:6px 10px;font-size:11px">
+          📍 22.7196°N, 75.8577°E &nbsp;·&nbsp; ±120m
+        </div>
+      </div>
+      <!-- TOWERS STATUS -->
+      <div class="towers-status">
+        <div class="tower-card connected">
+          <div class="tower-name">📡 BSNL-Tower A</div>
+          <div class="tower-strength">💪</div>
+          <div class="bars"><div class="bar lit" style="height:6px"></div><div class="bar lit" style="height:10px"></div><div class="bar lit" style="height:14px"></div><div class="bar lit" style="height:18px"></div><div class="bar" style="height:22px"></div></div>
+          <div class="tower-dist">0.8 km</div>
+        </div>
+        <div class="tower-card connected">
+          <div class="tower-name">📡 BSNL-Tower B</div>
+          <div class="tower-strength">💪</div>
+          <div class="bars"><div class="bar lit" style="height:6px"></div><div class="bar lit" style="height:10px"></div><div class="bar lit" style="height:14px"></div><div class="bar" style="height:18px"></div><div class="bar" style="height:22px"></div></div>
+          <div class="tower-dist">1.4 km</div>
+        </div>
+        <div class="tower-card connected">
+          <div class="tower-name">📡 BSNL-Tower C</div>
+          <div class="tower-strength">📶</div>
+          <div class="bars"><div class="bar lit" style="height:6px"></div><div class="bar lit" style="height:10px"></div><div class="bar" style="height:14px"></div><div class="bar" style="height:18px"></div><div class="bar" style="height:22px"></div></div>
+          <div class="tower-dist">2.1 km</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRIP LOG -->
+    <div class="card">
+      <div class="card-title">🗒️ Today's Trip Log</div>
+      <div class="trip-log" id="tripLog">
+        <div class="trip-item"><div class="trip-dot dot-green"></div><div><div class="trip-info-title">Trip 6 · In Progress</div><div class="trip-info-sub">Gram Chowk → Indore Central · 28 passengers · Started 11:30 AM</div></div></div>
+        <div class="trip-item"><div class="trip-dot dot-saffron"></div><div><div class="trip-info-title">Trip 5 · Completed ✓</div><div class="trip-info-sub">Indore Central → Gram Chowk · 32 passengers · 10:00–11:15 AM</div></div></div>
+        <div class="trip-item"><div class="trip-dot dot-saffron"></div><div><div class="trip-info-title">Trip 4 · Completed ✓</div><div class="trip-info-sub">Gram Chowk → Indore Central · 35 passengers · 08:30–09:45 AM</div></div></div>
+        <div class="trip-item"><div class="trip-dot dot-gray"></div><div><div class="trip-info-title">Trip 3 · Completed ✓</div><div class="trip-info-sub">Indore Central → Gram Chowk · 28 passengers · 07:00–08:15 AM</div></div></div>
+      </div>
+    </div>
+
+    <!-- SCHEDULE -->
+    <div class="card">
+      <div class="card-title">📅 Today's Schedule</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;gap:12px;align-items:center;padding:8px;background:var(--cream);border-radius:10px">
+          <div style="min-width:70px;font-weight:700;font-size:13px;color:var(--saffron)">12:30 PM</div>
+          <div><div style="font-size:13px;font-weight:600">Gram Chowk → Indore Central</div><div style="font-size:11px;color:var(--gray)">Next trip departure</div></div>
+          <div style="margin-left:auto;font-size:11px;background:var(--saffron-glow);color:var(--saffron);padding:3px 8px;border-radius:6px;font-weight:600">NEXT</div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;padding:8px;border-radius:10px">
+          <div style="min-width:70px;font-weight:700;font-size:13px;color:var(--gray)">02:00 PM</div>
+          <div><div style="font-size:13px;font-weight:600">Indore Central → Gram Chowk</div><div style="font-size:11px;color:var(--gray)">Return trip</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;padding:8px;border-radius:10px">
+          <div style="min-width:70px;font-weight:700;font-size:13px;color:var(--gray)">03:30 PM</div>
+          <div><div style="font-size:13px;font-weight:600">Gram Chowk → Indore Central</div><div style="font-size:11px;color:var(--gray)">Evening trip</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;padding:8px;border-radius:10px">
+          <div style="min-width:70px;font-weight:700;font-size:13px;color:var(--gray)">05:00 PM</div>
+          <div><div style="font-size:13px;font-weight:600">End of Duty</div><div style="font-size:11px;color:var(--gray)">Return to depot</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}</style>
+<script>
+  let isActive = true;
+  function toggleDuty() {
+    isActive = !isActive;
+    const card = document.getElementById('statusCard');
+    card.className = 'status-big ' + (isActive ? 'active-status' : 'inactive-status');
+    document.getElementById('statusEmoji').textContent = isActive ? '🟢' : '🔴';
+    document.getElementById('statusText').textContent = isActive ? 'ON DUTY' : 'INACTIVE';
+    document.getElementById('statusSub').textContent = isActive ? 'Location broadcasting · Updated 3s ago' : 'Location not broadcasting — tap to go active';
+    card.querySelector('.big-toggle').textContent = isActive ? 'Go Inactive' : 'Go Active';
+  }
+
+  function selectVehicle(el, num, route) {
+    document.querySelectorAll('.vehicle-option').forEach(v => { v.classList.remove('selected'); v.querySelector('.veh-check').textContent=''; });
+    el.classList.add('selected');
+    el.querySelector('.veh-check').textContent = '✓';
+    alert(`✅ Vehicle switched to ${num} — ${route}`);
+  }
+
+  function triggerSOS() {
+    if(confirm('🆘 Send emergency SOS? This will alert your operator and nearest emergency services.')) {
+      alert('🆘 SOS Alert sent!\n\nYour location has been shared with:\n- Vehicle Owner: Ajay Singh\n- Emergency Contact: 112\n- GramSafar Support\n\nHelp is on the way. Stay calm.');
+    }
+  }
+
+  // Simulate km updates
+  setInterval(() => {
+    if(isActive) {
+      const km = document.getElementById('todayKm');
+      km.textContent = (parseInt(km.textContent) + 1).toString();
+    }
+  }, 30000);
+</script>
+</body>
+</html>

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GramSafar – Consumer Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Noto+Sans+Devanagari:wght@400;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--saffron:#FF6B00;--saffron-light:#FF8C38;--saffron-glow:#FFD4A8;--green:#1A7F4B;--green-light:#22A862;--sky:#0EA5E9;--cream:#FFF8F0;--white:#FFFFFF;--dark:#1A1208;--gray:#6B7280;--border:#E5E7EB}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'DM Sans',sans-serif;background:#F8F9FA;color:var(--dark)}
+  
+  /* TOP BAR */
+  .topbar{background:var(--saffron);color:white;padding:0 1.5rem;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:999}
+  .topbar-left{display:flex;align-items:center;gap:10px}
+  .brand{font-family:'Baloo 2',cursive;font-size:20px;font-weight:800}
+  .user-info{font-size:13px;opacity:0.9}
+  .topbar-right{display:flex;align-items:center;gap:10px}
+  .notif-btn,.ai-btn{background:rgba(255,255,255,0.2);border:none;color:white;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:16px;transition:all 0.2s}
+  .notif-btn:hover,.ai-btn:hover{background:rgba(255,255,255,0.3)}
+  .logout-link{color:rgba(255,255,255,0.8);font-size:13px;text-decoration:none;padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);transition:all 0.2s}
+  .logout-link:hover{background:rgba(255,255,255,0.15)}
+
+  /* LAYOUT */
+  .layout{display:grid;grid-template-columns:320px 1fr;height:calc(100vh - 60px)}
+  
+  /* SIDEBAR */
+  .sidebar{background:white;border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
+  .sidebar-section{padding:1rem 1.2rem;border-bottom:1px solid var(--border)}
+  .sidebar-label{font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.8rem}
+  
+  /* LOCATION CARD */
+  .location-card{background:linear-gradient(135deg,var(--green) 0%,var(--green-light) 100%);border-radius:14px;padding:1rem;color:white;margin-bottom:0.8rem}
+  .loc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+  .loc-title{font-size:12px;opacity:0.85;font-weight:600}
+  .loc-live{display:flex;align-items:center;gap:4px;font-size:11px;background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:10px}
+  .live-dot{width:5px;height:5px;background:#7FFF00;border-radius:50%;animation:blink 1s infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+  .loc-name{font-size:16px;font-weight:700;margin-bottom:2px}
+  .loc-sub{font-size:11px;opacity:0.75}
+  .towers{display:flex;gap:8px;margin-top:8px}
+  .tower-chip{background:rgba(255,255,255,0.15);border-radius:6px;padding:4px 8px;font-size:10px;display:flex;align-items:center;gap:4px}
+
+  /* SEARCH */
+  .search-wrap{position:relative;margin-bottom:8px}
+  .search-input{width:100%;padding:10px 14px 10px 36px;border:2px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
+  .search-input:focus{border-color:var(--saffron)}
+  .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px}
+  .filter-chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:white;transition:all 0.2s}
+  .chip.active,.chip:hover{background:var(--saffron);color:white;border-color:var(--saffron)}
+
+  /* BUS LIST */
+  .bus-list{flex:1;overflow-y:auto;padding:0.5rem 1.2rem}
+  .bus-count{font-size:12px;color:var(--gray);margin:0.8rem 0 0.5rem;font-weight:500}
+  .bus-card{background:white;border:1.5px solid var(--border);border-radius:14px;padding:1rem;margin-bottom:0.75rem;cursor:pointer;transition:all 0.2s;position:relative}
+  .bus-card:hover,.bus-card.selected{border-color:var(--saffron);box-shadow:0 4px 16px rgba(255,107,0,0.1)}
+  .bus-card.selected::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--saffron);border-radius:4px 0 0 4px}
+  .bus-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .bus-number{font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:800;color:var(--saffron)}
+  .bus-status{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px}
+  .status-running{background:#D1EDE2;color:var(--green)}
+  .status-delayed{background:#FEF3C7;color:#92400E}
+  .status-arriving{background:#DBEAFE;color:#1E40AF}
+  .bus-route{font-size:13px;color:var(--dark);margin-bottom:4px;font-weight:500}
+  .bus-meta{display:flex;gap:12px}
+  .bus-meta-item{font-size:12px;color:var(--gray);display:flex;align-items:center;gap:3px}
+  .eta-badge{margin-left:auto;background:var(--saffron-glow);color:var(--saffron);font-weight:700;font-size:13px;padding:4px 10px;border-radius:8px}
+
+  /* MAP PANEL */
+  .map-panel{background:#E8F5EE;position:relative;overflow:hidden;display:flex;flex-direction:column}
+  .map-mock{flex:1;position:relative;background:linear-gradient(160deg,#E8F5EE 0%,#D1EDE2 40%,#C8E6DA 100%)}
+  .map-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.5) 1px,transparent 1px);background-size:50px 50px}
+  /* ROADS */
+  .road-h{position:absolute;height:12px;background:rgba(255,255,255,0.8);border-radius:2px}
+  .road-v{position:absolute;width:12px;background:rgba(255,255,255,0.8);border-radius:2px}
+  /* BUS MARKERS */
+  .bus-marker{position:absolute;cursor:pointer;transition:all 0.3s;transform:translate(-50%,-50%)}
+  .bus-marker-icon{font-size:28px;filter:drop-shadow(2px 3px 4px rgba(0,0,0,0.2));animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+  .bus-tooltip{background:white;border-radius:10px;padding:6px 10px;font-size:12px;font-weight:600;white-space:nowrap;position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);box-shadow:0 4px 12px rgba(0,0,0,0.15);border:1px solid var(--border)}
+  .bus-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:white}
+  /* STOPS */
+  .stop-marker{position:absolute;width:12px;height:12px;background:var(--saffron);border:2px solid white;border-radius:50%;transform:translate(-50%,-50%);cursor:pointer;transition:transform 0.2s}
+  .stop-marker:hover{transform:translate(-50%,-50%) scale(1.5)}
+  .stop-label{position:absolute;background:white;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600;white-space:nowrap;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);box-shadow:0 2px 6px rgba(0,0,0,0.1)}
+  /* ROUTE LINE */
+  .route-line{position:absolute;background:var(--saffron);height:3px;opacity:0.6;border-radius:2px;transform-origin:left center}
+  /* USER LOCATION */
+  .user-loc{position:absolute;width:20px;height:20px;background:var(--sky);border:3px solid white;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 2px 8px rgba(14,165,233,0.4)}
+  .user-loc::before{content:'';position:absolute;inset:-8px;border:2px solid var(--sky);border-radius:50%;opacity:0.4;animation:userPulse 2s ease-in-out infinite}
+  @keyframes userPulse{0%,100%{transform:scale(1);opacity:0.4}50%{transform:scale(1.5);opacity:0}}
+
+  /* MAP CONTROLS */
+  .map-controls{position:absolute;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:6px}
+  .map-btn{background:white;border:1px solid var(--border);border-radius:8px;padding:8px 10px;cursor:pointer;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:all 0.2s;font-family:'DM Sans',sans-serif}
+  .map-btn:hover{background:var(--saffron-glow)}
+
+  /* BOTTOM PANEL */
+  .bottom-panel{background:white;border-top:1px solid var(--border);padding:1rem 1.5rem;min-height:120px}
+  .selected-bus-info{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+  .info-cell{text-align:center}
+  .info-val{font-family:'Baloo 2',cursive;font-size:1.3rem;font-weight:700;color:var(--saffron)}
+  .info-label{font-size:11px;color:var(--gray);margin-top:2px}
+  .no-selection{text-align:center;padding:1.5rem;color:var(--gray);font-size:14px}
+
+  /* AI CHAT */
+  .ai-panel{position:fixed;bottom:0;right:0;width:360px;background:white;border-radius:20px 20px 0 0;box-shadow:0 -8px 32px rgba(0,0,0,0.15);z-index:1000;transition:all 0.3s;max-height:70vh;display:flex;flex-direction:column;transform:translateY(100%)}
+  .ai-panel.open{transform:translateY(0)}
+  .ai-header{background:linear-gradient(135deg,var(--saffron) 0%,var(--saffron-light) 100%);color:white;padding:1rem 1.2rem;border-radius:20px 20px 0 0;display:flex;align-items:center;justify-content:space-between;cursor:pointer;flex-shrink:0}
+  .ai-title{display:flex;align-items:center;gap:8px;font-weight:700;font-family:'Baloo 2',cursive;font-size:1.1rem}
+  .ai-close{background:rgba(255,255,255,0.2);border:none;color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+  .ai-messages{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:8px;min-height:200px}
+  .ai-msg{max-width:85%;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.5}
+  .ai-msg.bot{background:var(--cream);align-self:flex-start;border-radius:4px 12px 12px 12px}
+  .ai-msg.user{background:var(--saffron);color:white;align-self:flex-end;border-radius:12px 4px 12px 12px}
+  .ai-suggestions{display:flex;gap:6px;padding:0.5rem 1rem;flex-wrap:wrap;flex-shrink:0}
+  .ai-sug{background:var(--cream);border:1.5px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+  .ai-sug:hover{background:var(--saffron-glow);border-color:var(--saffron)}
+  .ai-input-row{display:flex;gap:8px;padding:0.8rem;border-top:1px solid var(--border);flex-shrink:0}
+  .ai-input{flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;outline:none;font-family:'DM Sans',sans-serif}
+  .ai-input:focus{border-color:var(--saffron)}
+  .ai-send{background:var(--saffron);color:white;border:none;border-radius:10px;padding:8px 12px;cursor:pointer;font-size:16px;transition:all 0.2s}
+  .ai-send:hover{background:var(--saffron-light)}
+  .ai-fab{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--saffron);color:white;border:none;width:56px;height:56px;border-radius:50%;font-size:22px;cursor:pointer;box-shadow:0 4px 20px rgba(255,107,0,0.4);z-index:999;transition:all 0.2s;display:flex;align-items:center;justify-content:center}
+  .ai-fab:hover{transform:scale(1.1)}
+
+  /* NOTIF TOAST */
+  .toast{position:fixed;top:70px;right:1rem;background:var(--green);color:white;padding:12px 16px;border-radius:12px;font-size:13px;font-weight:500;z-index:1001;transform:translateX(120%);transition:transform 0.3s;max-width:280px}
+  .toast.show{transform:translateX(0)}
+
+  @media(max-width:768px){.layout{grid-template-columns:1fr}.map-panel{display:none}.ai-panel{width:100%;border-radius:20px 20px 0 0}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="{% url 'home' %}" style="text-decoration:none;color:white;font-size:20px">🚌</a>
+    <div>
+      <div class="brand">GramSafar</div>
+      <div class="user-info">👨‍🌾 Ramesh Kumar &nbsp;·&nbsp; Consumer</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="notif-btn" onclick="showToast('🚌 Bus MP-09-AB-1234 arriving in 4 mins at Gram Chowk!')">🔔</button>
+    <a href="{% url 'home' %}" class="logout-link">← Home</a>
+    <a href="{% url 'login-page' %}" class="logout-link">Logout</a>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <!-- LOCATION -->
+    <div class="sidebar-section">
+      <div class="location-card">
+        <div class="loc-top">
+          <div class="loc-title">📍 Your Location</div>
+          <div class="loc-live"><span class="live-dot"></span>LIVE</div>
+        </div>
+        <div class="loc-name">Gram Chowk, Indore District</div>
+        <div class="loc-sub">Madhya Pradesh · 22.7196°N, 75.8577°E</div>
+        <div class="towers">
+          <div class="tower-chip">📡 BSNL-A</div>
+          <div class="tower-chip">📡 BSNL-B</div>
+          <div class="tower-chip">📡 BSNL-C</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--gray);text-align:center">Location via 3 cell towers · ±150m accuracy</div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="sidebar-section">
+      <div class="sidebar-label">🔍 Search Buses</div>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" type="text" placeholder="Destination, route, bus number..." id="searchInput" oninput="filterBuses()">
+      </div>
+      <div class="filter-chips">
+        <div class="chip active" onclick="setFilter('all',this)">All Buses</div>
+        <div class="chip" onclick="setFilter('running',this)">Running</div>
+        <div class="chip" onclick="setFilter('arriving',this)">Arriving</div>
+        <div class="chip" onclick="setFilter('delayed',this)">Delayed</div>
+      </div>
+    </div>
+
+    <!-- BUS LIST -->
+    <div class="bus-list">
+      <div class="bus-count" id="busCount">🚌 8 buses found near you</div>
+      <div id="busList"></div>
+    </div>
+  </div>
+
+  <!-- MAP PANEL -->
+  <div class="map-panel">
+    <div class="map-mock" id="mapMock">
+      <div class="map-grid"></div>
+      <!-- Roads -->
+      <div class="road-h" style="top:35%;left:5%;width:90%;"></div>
+      <div class="road-h" style="top:60%;left:10%;width:75%;"></div>
+      <div class="road-v" style="left:30%;top:10%;height:80%;"></div>
+      <div class="road-v" style="left:65%;top:15%;height:70%;"></div>
+      <!-- Route line -->
+      <div class="route-line" style="top:calc(35% - 1.5px);left:5%;width:60%"></div>
+      <!-- Bus markers -->
+      <div class="bus-marker" style="left:28%;top:35%" onclick="selectBus(0)">
+        <div class="bus-tooltip">MP-09-AB-1234</div>
+        <div class="bus-marker-icon">🚌</div>
+      </div>
+      <div class="bus-marker" style="left:55%;top:60%" onclick="selectBus(1)">
+        <div class="bus-tooltip" style="display:none">MP-09-CD-5678</div>
+        <div class="bus-marker-icon">🚌</div>
+      </div>
+      <div class="bus-marker" style="left:70%;top:35%" onclick="selectBus(2)">
+        <div class="bus-tooltip" style="display:none">MP-09-EF-9012</div>
+        <div class="bus-marker-icon">🚌</div>
+      </div>
+      <!-- Stops -->
+      <div class="stop-marker" style="left:10%;top:35%"><div class="stop-label">Gram Chowk</div></div>
+      <div class="stop-marker" style="left:30%;top:35%"><div class="stop-label">Bus Stand</div></div>
+      <div class="stop-marker" style="left:50%;top:35%"><div class="stop-label">City Center</div></div>
+      <div class="stop-marker" style="left:70%;top:35%"><div class="stop-label">Main Market</div></div>
+      <!-- User location -->
+      <div class="user-loc" style="left:18%;top:45%"></div>
+      <div style="position:absolute;left:18%;top:47%;transform:translateX(-50%);font-size:10px;background:white;padding:2px 6px;border-radius:4px;font-weight:600;color:var(--sky)">You</div>
+
+      <div class="map-controls">
+        <button class="map-btn" title="Zoom In">+</button>
+        <button class="map-btn" title="Zoom Out">−</button>
+        <button class="map-btn" title="My Location" onclick="showToast('📍 Location refreshed via cell towers!')">📍</button>
+        <button class="map-btn" title="Satellite View">🛰️</button>
+      </div>
+    </div>
+    <div class="bottom-panel" id="bottomPanel">
+      <div class="no-selection">👆 Select a bus from the list or tap a bus on the map to see details</div>
+    </div>
+  </div>
+</div>
+
+<!-- AI FAB -->
+<button class="ai-fab" id="aiFab" onclick="toggleAI()">🤖</button>
+
+<!-- AI PANEL -->
+<div class="ai-panel" id="aiPanel">
+  <div class="ai-header" onclick="toggleAI()">
+    <div class="ai-title">🤖 AI Travel Assistant <span style="font-size:12px;opacity:0.8;font-family:'DM Sans';font-weight:400">· Ask in Hindi or English</span></div>
+    <button class="ai-close" onclick="toggleAI()">✕</button>
+  </div>
+  <div class="ai-messages" id="aiMessages">
+    <div class="ai-msg bot">🙏 Namaste! I'm your GramSafar AI assistant. Ask me anything about buses, routes, or timings — in Hindi or English!</div>
+    <div class="ai-msg bot">नमस्ते! मुझसे बस, रूट, या समय के बारे में पूछें।</div>
+  </div>
+  <div class="ai-suggestions">
+    <div class="ai-sug" onclick="askAI('Which bus goes to Indore?')">Bus to Indore?</div>
+    <div class="ai-sug" onclick="askAI('Where is bus MP-09-AB-1234 right now?')">Bus location?</div>
+    <div class="ai-sug" onclick="askAI('Next bus from Gram Chowk?')">Next bus?</div>
+    <div class="ai-sug" onclick="askAI('इंदौर जाने वाली बस कौन सी है?')">हिंदी में पूछें</div>
+  </div>
+  <div class="ai-input-row">
+    <input class="ai-input" type="text" placeholder="Ask about buses, routes, timings..." id="aiInput" onkeydown="if(event.key==='Enter')sendAI()">
+    <button class="ai-send" onclick="sendAI()">➤</button>
+    <button class="ai-send" style="background:var(--green)" onclick="voiceInput()" title="Voice">🎙️</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const buses = [
+    {id:0,num:'MP-09-AB-1234',route:'Gram Chowk → Indore Central',status:'running',statusLabel:'Running',eta:'4 min',stops:12,dist:'18 km',fare:'₹25',speed:'42 km/h',lastStop:'Bus Stand',nextStop:'City Center',passengers:28,capacity:45},
+    {id:1,num:'MP-09-CD-5678',route:'Gram Chowk → Dewas',status:'delayed',statusLabel:'Delayed +8 min',eta:'22 min',stops:8,dist:'32 km',fare:'₹35',speed:'0 km/h',lastStop:'Gram Chowk',nextStop:'Highway Stop',passengers:15,capacity:45},
+    {id:2,num:'MP-09-EF-9012',route:'Main Market → Ujjain',status:'arriving',statusLabel:'Arriving Soon',eta:'2 min',stops:15,dist:'55 km',fare:'₹50',speed:'38 km/h',lastStop:'Old Town',nextStop:'Gram Chowk',passengers:36,capacity:50},
+    {id:3,num:'MP-09-GH-3456',route:'Gram Chowk → Pithampur',status:'running',statusLabel:'Running',eta:'12 min',stops:6,dist:'28 km',fare:'₹30',speed:'55 km/h',lastStop:'Industrial Area',nextStop:'Gram Chowk',passengers:20,capacity:40},
+    {id:4,num:'MP-09-IJ-7890',route:'Mhow → Indore Airport',status:'running',statusLabel:'Running',eta:'18 min',stops:10,dist:'45 km',fare:'₹45',speed:'60 km/h',lastStop:'Mhow Bus Stand',nextStop:'Simrol',passengers:12,capacity:45},
+    {id:5,num:'MP-09-KL-2345',route:'Sanwer → Indore',status:'delayed',statusLabel:'Delayed +15 min',eta:'35 min',stops:9,dist:'22 km',fare:'₹28',speed:'0 km/h',lastStop:'Sanwer',nextStop:'Gram Chowk',passengers:8,capacity:45},
+    {id:6,num:'MP-09-MN-6789',route:'Gram Chowk → Betma',status:'running',statusLabel:'Running',eta:'7 min',stops:5,dist:'15 km',fare:'₹20',speed:'48 km/h',lastStop:'Old Bridge',nextStop:'Gram Chowk',passengers:22,capacity:35},
+    {id:7,num:'MP-09-OP-0123',route:'Hatod → Indore Central',status:'arriving',statusLabel:'Arriving Soon',eta:'1 min',stops:11,dist:'40 km',fare:'₹38',speed:'25 km/h',lastStop:'Bypass Road',nextStop:'Gram Chowk',passengers:40,capacity:45},
+  ];
+
+  let filteredBuses = [...buses], activeFilter = 'all', selectedBusId = null;
+
+  function renderBusList(list) {
+    const container = document.getElementById('busList');
+    document.getElementById('busCount').textContent = `🚌 ${list.length} bus${list.length!==1?'es':''} found near you`;
+    container.innerHTML = list.map(b => `
+      <div class="bus-card ${selectedBusId===b.id?'selected':''}" onclick="selectBus(${b.id})">
+        <div class="bus-top">
+          <div class="bus-number">${b.num}</div>
+          <div class="bus-status status-${b.status}">${b.statusLabel}</div>
+        </div>
+        <div class="bus-route">🛣️ ${b.route}</div>
+        <div class="bus-meta">
+          <div class="bus-meta-item">📍 ${b.dist}</div>
+          <div class="bus-meta-item">🚏 ${b.stops} stops</div>
+          <div class="bus-meta-item">💰 ${b.fare}</div>
+          <div class="eta-badge">⏱ ${b.eta}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function selectBus(id) {
+    selectedBusId = id;
+    const b = buses.find(x=>x.id===id);
+    renderBusList(filteredBuses);
+    const occ = Math.round((b.passengers/b.capacity)*100);
+    document.getElementById('bottomPanel').innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.8rem">
+        <div>
+          <span style="font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:800;color:var(--saffron)">${b.num}</span>
+          <span style="font-size:12px;color:var(--gray);margin-left:8px">${b.route}</span>
+        </div>
+        <span class="bus-status status-${b.status}">${b.statusLabel}</span>
+      </div>
+      <div class="selected-bus-info">
+        <div class="info-cell"><div class="info-val">${b.eta}</div><div class="info-label">ETA to You</div></div>
+        <div class="info-cell"><div class="info-val">${b.speed}</div><div class="info-label">Speed</div></div>
+        <div class="info-cell"><div class="info-val">${b.fare}</div><div class="info-label">Fare</div></div>
+        <div class="info-cell"><div class="info-val">${occ}%</div><div class="info-label">Occupancy (${b.passengers}/${b.capacity})</div></div>
+      </div>
+      <div style="margin-top:0.8rem;font-size:12px;color:var(--gray)">📍 Last stop: <b>${b.lastStop}</b> &nbsp;→&nbsp; Next: <b>${b.nextStop}</b></div>
+    `;
+  }
+
+  function filterBuses() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    filteredBuses = buses.filter(b => {
+      const matchQ = !q || b.num.toLowerCase().includes(q) || b.route.toLowerCase().includes(q);
+      const matchF = activeFilter==='all' || b.status===activeFilter;
+      return matchQ && matchF;
+    });
+    renderBusList(filteredBuses);
+  }
+
+  function setFilter(f, el) {
+    activeFilter = f;
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    el.classList.add('active');
+    filterBuses();
+  }
+
+  // AI
+  const aiResponses = {
+    'indore': 'Bus MP-09-AB-1234 goes to Indore Central from Gram Chowk. ETA: 4 minutes. Fare: ₹25. 🚌',
+    'dewas': 'Bus MP-09-CD-5678 goes to Dewas from Gram Chowk. Currently delayed by 8 minutes. Next departure in 22 min. Fare: ₹35.',
+    'ujjain': 'Bus MP-09-EF-9012 operates on the Main Market → Ujjain route. It will arrive at Gram Chowk in about 2 minutes! Fare: ₹50.',
+    'mp-09-ab-1234': '🚌 Bus MP-09-AB-1234 is currently near City Center junction, moving towards your stop at 42 km/h. Expected at Gram Chowk in 4 minutes.',
+    'next bus': 'The next bus arriving at Gram Chowk is MP-09-OP-0123 from Hatod → Indore, arriving in just 1 minute! 🏃',
+    'इंदौर': 'इंदौर जाने वाली बस: MP-09-AB-1234 (Gram Chowk → Indore Central) — ETA: 4 मिनट, किराया: ₹25',
+    'default': 'I found several buses running on nearby routes. You can search by destination in the sidebar, or ask me about a specific bus number or route! 😊'
+  };
+
+  function getAIResponse(msg) {
+    const m = msg.toLowerCase();
+    for(const key of Object.keys(aiResponses)) {
+      if(m.includes(key)) return aiResponses[key];
+    }
+    return aiResponses['default'];
+  }
+
+  function addAIMsg(text, type) {
+    const div = document.createElement('div');
+    div.className = 'ai-msg ' + type;
+    div.textContent = text;
+    document.getElementById('aiMessages').appendChild(div);
+    document.getElementById('aiMessages').scrollTop = 9999;
+  }
+
+  function askAI(text) {
+    document.getElementById('aiPanel').classList.add('open');
+    document.getElementById('aiFab').style.display='none';
+    addAIMsg(text, 'user');
+    setTimeout(() => addAIMsg(getAIResponse(text), 'bot'), 800);
+  }
+
+  function sendAI() {
+    const input = document.getElementById('aiInput');
+    if(!input.value.trim()) return;
+    askAI(input.value.trim());
+    input.value = '';
+  }
+
+  function toggleAI() {
+    const panel = document.getElementById('aiPanel');
+    const fab = document.getElementById('aiFab');
+    panel.classList.toggle('open');
+    fab.style.display = panel.classList.contains('open') ? 'none' : 'flex';
+  }
+
+  function voiceInput() {
+    if('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const r = new SR(); r.lang='hi-IN';
+      r.onresult = e => { document.getElementById('aiInput').value = e.results[0][0].transcript; };
+      r.start();
+    } else {
+      showToast('Voice input not supported in this browser');
+    }
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 4000);
+  }
+
+  // Init
+  renderBusList(buses);
+  setTimeout(() => showToast('📍 Location detected: Gram Chowk via 3 cell towers'), 1000);
+  setInterval(() => {
+    const b = buses[Math.floor(Math.random()*buses.length)];
+    const mins = Math.max(1, parseInt(b.eta) + Math.floor(Math.random()*3) - 1);
+    b.eta = mins + ' min';
+    renderBusList(filteredBuses);
+  }, 10000);
+</script>
+</body>
+</html>

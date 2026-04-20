@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GramSafar – Rural Transport Connect</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Noto+Sans+Devanagari:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --saffron: #FF6B00;
+    --saffron-light: #FF8C38;
+    --saffron-glow: #FFD4A8;
+    --green: #1A7F4B;
+    --green-light: #22A862;
+    --sky: #0EA5E9;
+    --sky-light: #BAE6FD;
+    --earth: #7C3F00;
+    --cream: #FFF8F0;
+    --white: #FFFFFF;
+    --dark: #1A1208;
+    --gray: #6B7280;
+    --card-bg: #FFFFFF;
+    --shadow: 0 4px 24px rgba(255,107,0,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--dark); overflow-x: hidden; }
+
+  /* NAV */
+  nav {
+    background: var(--white);
+    border-bottom: 2px solid var(--saffron-glow);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px; position: sticky; top: 0; z-index: 999;
+    box-shadow: 0 2px 16px rgba(255,107,0,0.08);
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .nav-logo .bus-icon { font-size: 28px; }
+  .nav-logo .brand { font-family: 'Baloo 2', cursive; font-size: 22px; font-weight: 800; color: var(--saffron); }
+  .nav-logo .brand span { color: var(--green); }
+  .nav-links { display: flex; gap: 8px; align-items: center; }
+  .nav-links a {
+    padding: 8px 16px; border-radius: 8px; text-decoration: none;
+    font-weight: 500; font-size: 14px; color: var(--dark); transition: all 0.2s;
+  }
+  .nav-links a:hover { background: var(--saffron-glow); color: var(--saffron); }
+  .btn-login {
+    background: var(--saffron) !important; color: white !important;
+    border-radius: 10px !important; font-weight: 600 !important;
+  }
+  .btn-login:hover { background: var(--saffron-light) !important; transform: translateY(-1px); }
+
+  /* HERO */
+  .hero {
+    min-height: 88vh; display: flex; align-items: center;
+    background: linear-gradient(135deg, #FFF8F0 0%, #FFF0DC 50%, #E8F5EE 100%);
+    padding: 4rem 2rem; position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -80px; right: -80px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(255,107,0,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero::after {
+    content: '';
+    position: absolute; bottom: -60px; left: -60px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(26,127,75,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero-content { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; width: 100%; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--green); color: white;
+    padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    margin-bottom: 1.2rem; letter-spacing: 0.5px;
+  }
+  .hero-title {
+    font-family: 'Baloo 2', cursive; font-size: 3.2rem; font-weight: 800;
+    line-height: 1.15; margin-bottom: 0.5rem; color: var(--dark);
+  }
+  .hero-title .highlight { color: var(--saffron); }
+  .hero-subtitle-hindi {
+    font-family: 'Noto Sans Devanagari', sans-serif;
+    font-size: 1.2rem; color: var(--green); font-weight: 600; margin-bottom: 1rem;
+  }
+  .hero-desc { font-size: 1.1rem; color: var(--gray); line-height: 1.7; margin-bottom: 2rem; }
+  .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--saffron); color: white; padding: 14px 28px;
+    border-radius: 12px; font-size: 16px; font-weight: 600; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: all 0.2s; box-shadow: 0 4px 16px rgba(255,107,0,0.35);
+  }
+  .btn-primary:hover { background: var(--saffron-light); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,107,0,0.4); }
+  .btn-secondary {
+    background: white; color: var(--green); padding: 14px 28px;
+    border-radius: 12px; font-size: 16px; font-weight: 600; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 2px solid var(--green); transition: all 0.2s;
+  }
+  .btn-secondary:hover { background: var(--green); color: white; transform: translateY(-2px); }
+
+  /* HERO VISUAL */
+  .hero-visual { position: relative; }
+  .bus-illustration {
+    background: white; border-radius: 24px; padding: 2rem;
+    box-shadow: var(--shadow); position: relative;
+  }
+  .bus-map-mock {
+    background: linear-gradient(180deg, #E8F5EE 0%, #D1EDE2 100%);
+    border-radius: 16px; height: 260px; position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .map-roads {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.6) 2px, transparent 2px),
+      linear-gradient(90deg, rgba(255,255,255,0.6) 2px, transparent 2px);
+    background-size: 40px 40px;
+  }
+  .map-bus {
+    position: absolute; font-size: 40px;
+    animation: moveBus 4s ease-in-out infinite alternate;
+    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.15));
+  }
+  @keyframes moveBus { from { left: 20%; } to { left: 60%; } }
+  .map-ping {
+    position: absolute; width: 20px; height: 20px;
+    background: var(--saffron); border-radius: 50%;
+    animation: ping 1.5s ease-in-out infinite;
+  }
+  .map-ping::before {
+    content: ''; position: absolute; inset: -6px;
+    border: 2px solid var(--saffron); border-radius: 50%;
+    animation: pingRipple 1.5s ease-in-out infinite;
+  }
+  @keyframes ping { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+  @keyframes pingRipple { 0% { opacity:1; transform: scale(1); } 100% { opacity:0; transform: scale(2); } }
+  .signal-towers {
+    display: flex; justify-content: space-around; padding: 1rem 0 0;
+  }
+  .tower { text-align: center; }
+  .tower-icon { font-size: 24px; }
+  .tower-label { font-size: 10px; color: var(--gray); margin-top: 2px; }
+  .signal-bar {
+    display: flex; gap: 2px; align-items: flex-end; justify-content: center; margin-top: 4px;
+  }
+  .signal-bar span {
+    width: 4px; background: var(--green); border-radius: 2px;
+    animation: signalPulse 1s ease-in-out infinite alternate;
+  }
+  .signal-bar span:nth-child(1) { height: 6px; animation-delay: 0s; }
+  .signal-bar span:nth-child(2) { height: 10px; animation-delay: 0.2s; }
+  .signal-bar span:nth-child(3) { height: 14px; animation-delay: 0.4s; }
+  @keyframes signalPulse { from { opacity: 0.4; } to { opacity: 1; } }
+  .live-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--green); color: white;
+    padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    position: absolute; top: 12px; right: 12px;
+  }
+  .live-dot { width: 6px; height: 6px; background: #7FFF00; border-radius: 50%; animation: blink 1s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  /* STATS */
+  .stats-bar {
+    background: var(--saffron); color: white;
+    padding: 1.5rem 2rem; display: flex; justify-content: center; gap: 4rem; flex-wrap: wrap;
+  }
+  .stat { text-align: center; }
+  .stat-num { font-family: 'Baloo 2', cursive; font-size: 2rem; font-weight: 800; }
+  .stat-label { font-size: 13px; opacity: 0.9; }
+
+  /* ROLES SECTION */
+  .section { padding: 5rem 2rem; }
+  .section-header { text-align: center; margin-bottom: 3rem; }
+  .section-tag { display: inline-block; background: var(--saffron-glow); color: var(--saffron); padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 0.8rem; }
+  .section-title { font-family: 'Baloo 2', cursive; font-size: 2.2rem; font-weight: 800; }
+  .section-sub { color: var(--gray); font-size: 1.05rem; margin-top: 0.5rem; }
+  .roles-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; max-width: 1100px; margin: 0 auto; }
+  .role-card {
+    background: white; border-radius: 20px; padding: 2rem;
+    border: 2px solid transparent; cursor: pointer;
+    transition: all 0.25s; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    text-decoration: none; color: inherit; display: block;
+  }
+  .role-card:hover { transform: translateY(-6px); box-shadow: 0 12px 32px rgba(255,107,0,0.15); border-color: var(--saffron); }
+  .role-icon { font-size: 3rem; margin-bottom: 1rem; }
+  .role-name { font-family: 'Baloo 2', cursive; font-size: 1.4rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .role-name-hindi { font-family: 'Noto Sans Devanagari', sans-serif; font-size: 0.9rem; color: var(--gray); margin-bottom: 0.8rem; }
+  .role-desc { font-size: 0.9rem; color: var(--gray); line-height: 1.6; }
+  .role-features { list-style: none; margin-top: 1rem; }
+  .role-features li { font-size: 13px; color: var(--dark); padding: 4px 0; display: flex; align-items: center; gap: 6px; }
+  .role-features li::before { content: '✓'; color: var(--green); font-weight: 700; }
+  .role-btn {
+    display: inline-block; margin-top: 1.2rem; padding: 10px 20px;
+    background: var(--cream); color: var(--saffron); border-radius: 10px;
+    font-weight: 600; font-size: 13px; transition: all 0.2s;
+  }
+  .role-card:hover .role-btn { background: var(--saffron); color: white; }
+
+  /* FEATURES */
+  .features-section { background: white; }
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; max-width: 1100px; margin: 0 auto; }
+  .feature-card { text-align: center; padding: 1.5rem; }
+  .feature-icon-wrap {
+    width: 64px; height: 64px; border-radius: 16px; margin: 0 auto 1rem;
+    display: flex; align-items: center; justify-content: center; font-size: 28px;
+  }
+  .feature-title { font-weight: 600; font-size: 1rem; margin-bottom: 0.4rem; }
+  .feature-desc { font-size: 0.875rem; color: var(--gray); line-height: 1.6; }
+  .bg-saffron { background: var(--saffron-glow); }
+  .bg-green { background: #D1EDE2; }
+  .bg-sky { background: #E0F2FE; }
+  .bg-purple { background: #F3E8FF; }
+  .bg-gold { background: #FEF3C7; }
+  .bg-red { background: #FEE2E2; }
+
+  /* HOW IT WORKS */
+  .how-section { background: var(--cream); }
+  .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; max-width: 1000px; margin: 0 auto; position: relative; }
+  .steps-grid::before {
+    content: ''; position: absolute; top: 30px; left: 10%; right: 10%;
+    height: 2px; background: linear-gradient(90deg, var(--saffron), var(--green));
+    display: none;
+  }
+  .step { text-align: center; }
+  .step-num {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--saffron); color: white;
+    font-family: 'Baloo 2', cursive; font-size: 1.4rem; font-weight: 800;
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;
+    box-shadow: 0 4px 16px rgba(255,107,0,0.3);
+  }
+  .step-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .step-title { font-weight: 600; margin-bottom: 0.4rem; }
+  .step-desc { font-size: 0.875rem; color: var(--gray); line-height: 1.6; }
+
+  /* CTA */
+  .cta-section {
+    background: linear-gradient(135deg, var(--saffron) 0%, #FF8C00 100%);
+    color: white; text-align: center; padding: 5rem 2rem;
+  }
+  .cta-title { font-family: 'Baloo 2', cursive; font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem; }
+  .cta-sub { font-size: 1.1rem; opacity: 0.9; margin-bottom: 2rem; }
+  .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn-white { background: white; color: var(--saffron); padding: 14px 28px; border-radius: 12px; font-weight: 700; text-decoration: none; font-size: 16px; transition: all 0.2s; }
+  .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+  .btn-outline-white { background: transparent; color: white; padding: 14px 28px; border-radius: 12px; font-weight: 600; text-decoration: none; font-size: 16px; border: 2px solid rgba(255,255,255,0.6); transition: all 0.2s; }
+  .btn-outline-white:hover { background: rgba(255,255,255,0.15); }
+
+  /* FOOTER */
+  footer {
+    background: var(--dark); color: rgba(255,255,255,0.7);
+    padding: 3rem 2rem 1.5rem; text-align: center;
+  }
+  .footer-logo { font-family: 'Baloo 2', cursive; font-size: 1.8rem; font-weight: 800; color: var(--saffron); margin-bottom: 1rem; }
+  .footer-links { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .footer-links a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 14px; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--saffron); }
+  .footer-copy { font-size: 13px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem; margin-top: 1.5rem; }
+
+  /* LANG SWITCHER */
+  .lang-switcher { display: flex; gap: 4px; align-items: center; }
+  .lang-btn { padding: 4px 8px; border-radius: 6px; border: 1px solid #ddd; background: transparent; cursor: pointer; font-size: 12px; transition: all 0.2s; }
+  .lang-btn.active { background: var(--saffron); color: white; border-color: var(--saffron); }
+
+  @media (max-width: 768px) {
+    .hero-content { grid-template-columns: 1fr; gap: 2rem; }
+    .hero-title { font-size: 2.2rem; }
+    .nav-links { display: none; }
+    .stats-bar { gap: 2rem; }
+    .hero-visual { order: -1; }
+  }
+
+  /* ANIMATE */
+  .fade-in { opacity: 0; transform: translateY(20px); transition: all 0.6s ease; }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="{% url 'home' %}" class="nav-logo">
+    <span class="bus-icon">🚌</span>
+    <span class="brand">Gram<span>Safar</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="#how">How It Works</a>
+    <a href="#features">Features</a>
+    <a href="#roles">Roles</a>
+    <div class="lang-switcher">
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('hi')">हिं</button>
+    </div>
+    <a href="{% url 'login-page' %}" class="btn-login">Login / Register</a>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <div class="lang-switcher" style="display:none" id="mobile-lang">
+      <button class="lang-btn active">EN</button>
+      <button class="lang-btn">हिं</button>
+    </div>
+    <a href="{% url 'login-page' %}" class="btn-login" style="display:none;padding:8px 14px;font-size:14px;text-decoration:none;background:var(--saffron);color:white;border-radius:8px;font-weight:600" id="mobile-login">Login</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-text fade-in">
+      <div class="hero-badge">🛰️ Cell Tower Tracking — No GPS Needed</div>
+      <h1 class="hero-title">
+        Connecting <span class="highlight">Rural India</span><br>to Every Destination
+      </h1>
+      <p class="hero-subtitle-hindi">गांव को शहर से जोड़ता है</p>
+      <p class="hero-desc">
+        Real-time bus tracking designed for low-connectivity regions. Know exactly when your bus arrives — using cell tower triangulation that works even without GPS or strong internet.
+      </p>
+      <div class="hero-actions">
+        <a href="{% url 'consumer-page' %}" class="btn-primary">🚌 Track My Bus</a>
+        <a href="{% url 'login-page' %}" class="btn-secondary">📋 Register Now</a>
+      </div>
+    </div>
+    <div class="hero-visual fade-in">
+      <div class="bus-illustration">
+        <div class="live-tag"><span class="live-dot"></span> LIVE</div>
+        <div class="bus-map-mock">
+          <div class="map-roads"></div>
+          <div class="map-bus" style="top:40%">🚌</div>
+          <div class="map-ping" style="top:30%;left:70%"></div>
+          <div class="map-ping" style="top:60%;left:25%;animation-delay:0.5s"></div>
+        </div>
+        <div class="signal-towers">
+          <div class="tower">
+            <div class="tower-icon">📡</div>
+            <div class="signal-bar"><span></span><span></span><span></span></div>
+            <div class="tower-label">Tower A</div>
+          </div>
+          <div class="tower">
+            <div class="tower-icon">📡</div>
+            <div class="signal-bar"><span></span><span></span><span></span></div>
+            <div class="tower-label">Tower B</div>
+          </div>
+          <div class="tower">
+            <div class="tower-icon">📡</div>
+            <div class="signal-bar"><span></span><span></span><span></span></div>
+            <div class="tower-label">Tower C</div>
+          </div>
+        </div>
+        <p style="text-align:center;font-size:12px;color:var(--gray);margin-top:0.5rem">📍 Location via 3 cell towers · Accuracy: ±150m</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ROLES -->
+<section class="section" id="roles">
+  <div class="section-header fade-in">
+    <div class="section-tag">👥 User Roles</div>
+    <h2 class="section-title">Choose Your Role</h2>
+    <p class="section-sub">GramSafar serves everyone in the transport ecosystem</p>
+  </div>
+  <div class="roles-grid">
+    <a href="{% url 'consumer-page' %}" class="role-card fade-in">
+      <div class="role-icon">👨‍🌾</div>
+      <div class="role-name">Consumer</div>
+      <div class="role-name-hindi">यात्री (Yatri)</div>
+      <div class="role-desc">Rural users who want to track buses and plan travel</div>
+      <ul class="role-features">
+        <li>View nearby buses live</li>
+        <li>Search by destination</li>
+        <li>AI travel assistant</li>
+        <li>Arrival alerts</li>
+      </ul>
+      <span class="role-btn">Open Dashboard →</span>
+    </a>
+    <a href="{% url 'driver-page' %}" class="role-card fade-in">
+      <div class="role-icon">🚗</div>
+      <div class="role-name">Driver</div>
+      <div class="role-name-hindi">चालक (Chalak)</div>
+      <div class="role-desc">Bus drivers with auto location tracking via cell towers</div>
+      <ul class="role-features">
+        <li>Auto location broadcast</li>
+        <li>No manual updates</li>
+        <li>Vehicle assignment</li>
+        <li>Active/Inactive toggle</li>
+      </ul>
+      <span class="role-btn">Driver Panel →</span>
+    </a>
+    <a href="{% url 'owner-page' %}" class="role-card fade-in">
+      <div class="role-icon">🏢</div>
+      <div class="role-name">Vehicle Owner</div>
+      <div class="role-name-hindi">मालिक (Malik)</div>
+      <div class="role-desc">Transport operators managing vehicles, routes, and drivers</div>
+      <ul class="role-features">
+        <li>Add/manage vehicles</li>
+        <li>Approve drivers</li>
+        <li>Route & schedule</li>
+        <li>RTO document upload</li>
+      </ul>
+      <span class="role-btn">Owner Panel →</span>
+    </a>
+    <a href="{% url 'rto-page' %}" class="role-card fade-in">
+      <div class="role-icon">🏛️</div>
+      <div class="role-name">RTO Officer</div>
+      <div class="role-name-hindi">RTO अधिकारी</div>
+      <div class="role-desc">Government officials verifying vehicles and monitoring compliance</div>
+      <ul class="role-features">
+        <li>Verify documents</li>
+        <li>Approve vehicles</li>
+        <li>Monitor illegal buses</li>
+        <li>Full system access</li>
+      </ul>
+      <span class="role-btn">RTO Portal →</span>
+    </a>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section features-section" id="features">
+  <div class="section-header fade-in">
+    <div class="section-tag">⚡ Features</div>
+    <h2 class="section-title">Built for Bharat</h2>
+    <p class="section-sub">Every feature designed for real conditions in rural India</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card fade-in">
+      <div class="feature-icon-wrap bg-saffron">📡</div>
+      <div class="feature-title">Cell Tower Tracking</div>
+      <div class="feature-desc">Triangulates location using 3+ towers. No GPS or strong internet needed.</div>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon-wrap bg-green">🤖</div>
+      <div class="feature-title">AI Assistant</div>
+      <div class="feature-desc">Ask in Hindi or English: "Which bus goes to Indore?" Smart NLP answers.</div>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon-wrap bg-sky">📶</div>
+      <div class="feature-title">Offline Caching</div>
+      <div class="feature-desc">Last known schedules cached locally. Works even when network drops.</div>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon-wrap bg-purple">🔔</div>
+      <div class="feature-title">SMS Alerts</div>
+      <div class="feature-desc">Bus arrival & delay SMS fallback when data connectivity is unavailable.</div>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon-wrap bg-gold">🗺️</div>
+      <div class="feature-title">Route Planner</div>
+      <div class="feature-desc">Visual route maps with stop-by-stop breakdown and ETA at each stop.</div>
+    </div>
+    <div class="feature-card fade-in">
+      <div class="feature-icon-wrap bg-red">🛡️</div>
+      <div class="feature-title">RTO Verified</div>
+      <div class="feature-desc">Only government-verified vehicles appear. Full compliance monitoring.</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section how-section" id="how">
+  <div class="section-header fade-in">
+    <div class="section-tag">🔄 How It Works</div>
+    <h2 class="section-title">Simple as 1-2-3</h2>
+    <p class="section-sub">From registration to real-time tracking in minutes</p>
+  </div>
+  <div class="steps-grid">
+    <div class="step fade-in">
+      <div class="step-num">1</div>
+      <div class="step-icon">📝</div>
+      <div class="step-title">Register</div>
+      <div class="step-desc">Sign up with name & phone number. Choose your role — Consumer, Driver, or Owner.</div>
+    </div>
+    <div class="step fade-in">
+      <div class="step-num">2</div>
+      <div class="step-icon">📡</div>
+      <div class="step-title">Auto Locate</div>
+      <div class="step-desc">Your location detected via nearby cell towers. No GPS or address typing needed.</div>
+    </div>
+    <div class="step fade-in">
+      <div class="step-num">3</div>
+      <div class="step-icon">🚌</div>
+      <div class="step-title">See Buses</div>
+      <div class="step-desc">View all buses near you, their routes, estimated arrival time, and live position.</div>
+    </div>
+    <div class="step fade-in">
+      <div class="step-num">4</div>
+      <div class="step-icon">🤖</div>
+      <div class="step-title">Ask AI</div>
+      <div class="step-desc">Use the AI assistant to ask anything in Hindi or English for smart travel help.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section fade-in">
+  <h2 class="cta-title">Ready to Travel Smarter?</h2>
+  <p class="cta-sub">Join 1.2 lakh rural users already using GramSafar every day</p>
+  <div class="cta-btns">
+    <a href="{% url 'login-page' %}" class="btn-white">🚀 Get Started Free</a>
+    <a href="{% url 'consumer-page' %}" class="btn-outline-white">👁️ View Live Demo</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">🚌 GramSafar</div>
+  <div class="footer-links">
+    <a href="{% url 'consumer-page' %}">Consumer</a>
+    <a href="{% url 'driver-page' %}">Driver</a>
+    <a href="{% url 'owner-page' %}">Vehicle Owner</a>
+    <a href="{% url 'rto-page' %}">RTO Officer</a>
+    <a href="{% url 'login-page' %}">Login</a>
+  </div>
+  <div class="footer-copy">
+    © 2025 GramSafar. Built for Rural India 🇮🇳 | Designed with ❤️ for Bharat
+  </div>
+</footer>
+
+<script>
+  // Scroll animation
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // Lang switcher
+  function setLang(lang) {
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    if(lang === 'hi') {
+      document.querySelector('.hero-title').innerHTML = 'ग्रामीण <span class="highlight">भारत</span> को<br>हर मंज़िल से जोड़ता है';
+      document.querySelector('.hero-desc').textContent = 'कम नेटवर्क में भी बस की लाइव लोकेशन देखें। सेल टॉवर से ट्रैकिंग — GPS की जरूरत नहीं।';
+    } else {
+      document.querySelector('.hero-title').innerHTML = 'Connecting <span class="highlight">Rural India</span><br>to Every Destination';
+      document.querySelector('.hero-desc').textContent = 'Real-time bus tracking designed for low-connectivity regions. Know exactly when your bus arrives — using cell tower triangulation that works even without GPS or strong internet.';
+    }
+  }
+
+  // Mobile nav
+  if(window.innerWidth <= 768) {
+    document.getElementById('mobile-lang').style.display = 'flex';
+    document.getElementById('mobile-login').style.display = 'inline-block';
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GramSafar – RTO Officer Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--rto:#7C3AED;--rto-light:#8B5CF6;--rto-glow:#EDE9FE;--saffron:#FF6B00;--saffron-glow:#FFD4A8;--green:#1A7F4B;--cream:#FFF8F0;--white:#fff;--dark:#1A1208;--gray:#6B7280;--border:#E5E7EB;--red:#DC2626;--amber:#D97706;--blue:#2563EB}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'DM Sans',sans-serif;background:#F8F9FA;color:var(--dark)}
+  .topbar{background:var(--rto);color:white;padding:0 1.5rem;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99}
+  .brand{font-family:'Baloo 2',cursive;font-size:20px;font-weight:800}
+  .gov-badge{background:rgba(255,255,255,0.2);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600}
+  .nav-btn{color:rgba(255,255,255,0.8);font-size:13px;text-decoration:none;padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);transition:all 0.2s}
+  .nav-btn:hover{background:rgba(255,255,255,0.15);color:white}
+  
+  .page-tabs{background:white;border-bottom:1px solid var(--border);padding:0 2rem;display:flex;gap:4px;overflow-x:auto}
+  .page-tab{padding:14px 20px;font-size:14px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--gray);transition:all 0.2s;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-1px}
+  .page-tab.active{color:var(--rto);border-bottom-color:var(--rto);font-weight:600}
+  .tab-content{display:none;padding:2rem;max-width:1200px;margin:0 auto}
+  .tab-content.active{display:block}
+
+  /* ALERT BANNER */
+  .alert-banner{background:linear-gradient(135deg,#FEF2F2 0%,#FECACA 100%);border:1.5px solid #FCA5A5;border-radius:12px;padding:1rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:10px}
+  .alert-text{font-size:14px;font-weight:500;color:var(--red);flex:1}
+  .alert-action{background:var(--red);color:white;border:none;padding:6px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+  /* STATS */
+  .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:2rem}
+  .stat-card{background:white;border-radius:14px;border:1.5px solid var(--border);padding:1.2rem;text-align:center;position:relative;overflow:hidden}
+  .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+  .stat-purple::before{background:var(--rto)}
+  .stat-green::before{background:var(--green)}
+  .stat-amber::before{background:var(--amber)}
+  .stat-red::before{background:var(--red)}
+  .stat-blue::before{background:var(--blue)}
+  .stat-num{font-family:'Baloo 2',cursive;font-size:2rem;font-weight:800}
+  .stat-label{font-size:12px;color:var(--gray);margin-top:2px}
+  .stat-purple .stat-num{color:var(--rto)}
+  .stat-green .stat-num{color:var(--green)}
+  .stat-amber .stat-num{color:var(--amber)}
+  .stat-red .stat-num{color:var(--red)}
+  .stat-blue .stat-num{color:var(--blue)}
+
+  /* TABLE */
+  .table-wrap{background:white;border-radius:16px;border:1.5px solid var(--border);overflow:hidden;margin-bottom:1.5rem}
+  .table-header{padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .table-title{font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:700}
+  .search-input{padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;font-family:'DM Sans',sans-serif}
+  .search-input:focus{border-color:var(--rto)}
+  table{width:100%;border-collapse:collapse}
+  th{background:#F9FAFB;padding:10px 1.5rem;text-align:left;font-size:12px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)}
+  td{padding:12px 1.5rem;font-size:13px;border-bottom:1px solid var(--border)}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:#FAFAFA}
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+  .badge-green{background:#D1EDE2;color:var(--green)}
+  .badge-amber{background:#FEF3C7;color:var(--amber)}
+  .badge-red{background:#FEE2E2;color:var(--red)}
+  .badge-blue{background:#DBEAFE;color:var(--blue)}
+  .badge-gray{background:#F3F4F6;color:var(--gray)}
+  .badge-purple{background:#EDE9FE;color:var(--rto)}
+  .action-btns{display:flex;gap:6px;flex-wrap:wrap}
+  .btn-sm{padding:5px 10px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+  .btn-approve{background:var(--green);color:white}
+  .btn-reject{background:var(--red);color:white}
+  .btn-view{background:#F3F4F6;color:var(--dark)}
+  .btn-flag{background:var(--amber);color:white}
+  .btn-sm:hover{opacity:0.85}
+
+  /* VEHICLE DETAIL CARD */
+  .detail-card{background:var(--rto-glow);border:1.5px solid #C4B5FD;border-radius:14px;padding:1.5rem;margin-bottom:1.5rem}
+  .detail-card-title{font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:700;color:var(--rto);margin-bottom:1rem}
+  .doc-checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.8rem}
+  .doc-item{background:white;border-radius:10px;padding:0.8rem;display:flex;align-items:center;gap:8px;border:1.5px solid var(--border)}
+  .doc-item.valid{border-color:var(--green)}
+  .doc-item.invalid{border-color:var(--red)}
+  .doc-icon{font-size:20px}
+  .doc-name{font-size:13px;font-weight:600}
+  .doc-status{font-size:11px;margin-top:2px}
+  .doc-item.valid .doc-status{color:var(--green)}
+  .doc-item.invalid .doc-status{color:var(--red)}
+
+  /* HEATMAP */
+  .heatmap-wrap{background:white;border-radius:16px;border:1.5px solid var(--border);padding:1.5rem;margin-bottom:1.5rem}
+  .heatmap-title{font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:700;margin-bottom:1rem}
+  .heatmap-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .heatmap-cell{height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:white;cursor:pointer;transition:all 0.2s}
+  .heatmap-cell:hover{transform:scale(1.1)}
+  .heat-0{background:#F3F4F6;color:var(--gray)}
+  .heat-1{background:#BBF7D0;color:#065F46}
+  .heat-2{background:#6EE7B7;color:#065F46}
+  .heat-3{background:#34D399;color:#065F46}
+  .heat-4{background:#10B981;color:white}
+  .heat-5{background:#059669;color:white}
+
+  /* ROUTE MAP MONITOR */
+  .monitor-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+  .monitor-card{background:white;border-radius:14px;border:1.5px solid var(--border);padding:1.2rem}
+  .monitor-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.8rem}
+  .monitor-title{font-weight:600;font-size:14px}
+  .monitor-badge{font-size:11px;padding:3px 8px;border-radius:10px;font-weight:600}
+
+  /* TOAST */
+  .toast{position:fixed;top:70px;right:1rem;background:var(--rto);color:white;padding:12px 16px;border-radius:12px;font-size:13px;z-index:1001;transform:translateX(120%);transition:transform 0.3s;max-width:300px}
+  .toast.show{transform:translateX(0)}
+
+  @media(max-width:768px){.monitor-grid{grid-template-columns:1fr}.doc-checklist{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:10px">
+    <a href="{% url 'home' %}" style="text-decoration:none;color:white;font-size:20px">🚌</a>
+    <div><div class="brand">GramSafar RTO Portal</div><div style="font-size:11px;opacity:0.8">Government of Madhya Pradesh</div></div>
+  </div>
+  <div class="gov-badge">🏛️ Officer: Sharma R. · Badge #RTO-MP-042</div>
+  <div style="display:flex;gap:6px">
+    <a href="{% url 'owner-page' %}" class="nav-btn">🏢 Owner View</a>
+    <a href="{% url 'consumer-page' %}" class="nav-btn">🚌 Consumer View</a>
+    <a href="{% url 'home' %}" class="nav-btn">← Home</a>
+    <a href="{% url 'login-page' %}" class="nav-btn">Logout</a>
+  </div>
+</div>
+
+<div class="page-tabs">
+  <button class="page-tab active" onclick="showTab('dashboard',this)">📊 Dashboard</button>
+  <button class="page-tab" onclick="showTab('vehicles',this)">🚌 Vehicle Verification</button>
+  <button class="page-tab" onclick="showTab('licenses',this)">📄 License Verification</button>
+  <button class="page-tab" onclick="showTab('illegal',this)">🚨 Illegal Vehicles</button>
+  <button class="page-tab" onclick="showTab('monitor',this)">🔍 System Monitor</button>
+  <button class="page-tab" onclick="showTab('reports',this)">📈 Reports</button>
+</div>
+
+<!-- DASHBOARD -->
+<div class="tab-content active" id="tab-dashboard">
+  <div class="alert-banner">
+    <span style="font-size:20px">🚨</span>
+    <div class="alert-text"><b>3 unregistered vehicles</b> detected on active routes. Immediate action required.</div>
+    <button class="alert-action" onclick="showTab('illegal',document.querySelectorAll('.page-tab')[3]);document.querySelectorAll('.page-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.page-tab')[3].classList.add('active')">View Now →</button>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card stat-purple"><div class="stat-num">248</div><div class="stat-label">Total Vehicles</div></div>
+    <div class="stat-card stat-green"><div class="stat-num">196</div><div class="stat-label">Approved</div></div>
+    <div class="stat-card stat-amber"><div class="stat-num">27</div><div class="stat-label">Pending Review</div></div>
+    <div class="stat-card stat-red"><div class="stat-num">3</div><div class="stat-label">Illegal / Flagged</div></div>
+    <div class="stat-card stat-blue"><div class="stat-num">842</div><div class="stat-label">Licensed Drivers</div></div>
+    <div class="stat-card stat-red"><div class="stat-num">12</div><div class="stat-label">Expired Licenses</div></div>
+  </div>
+
+  <div class="monitor-grid">
+    <div class="monitor-card">
+      <div class="monitor-header"><div class="monitor-title">🔄 Pending Actions</div><span style="font-size:20px">⏳</span></div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px;background:#FEF3C7;border-radius:8px">
+          <span style="font-size:13px">Vehicle verifications</span><span class="badge badge-amber">27</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px;background:#FEE2E2;border-radius:8px">
+          <span style="font-size:13px">License renewals</span><span class="badge badge-red">12</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px;background:#EDE9FE;border-radius:8px">
+          <span style="font-size:13px">Route permit applications</span><span class="badge badge-purple">8</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px;background:#DBEAFE;border-radius:8px">
+          <span style="font-size:13px">Fitness cert expirations (30d)</span><span class="badge badge-blue">15</span>
+        </div>
+      </div>
+    </div>
+    <div class="monitor-card">
+      <div class="monitor-header"><div class="monitor-title">📡 Live Network Status</div><span style="font-size:11px;color:var(--green)">● All systems operational</span></div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid var(--border)"><span>Vehicles online now</span><b>183</b></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid var(--border)"><span>Cell towers connected</span><b>1,248</b></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid var(--border)"><span>Avg location accuracy</span><b>±140m</b></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid var(--border)"><span>Active users today</span><b>14,280</b></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0"><span>API response time</span><b>82ms</b></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRANSPORT HEATMAP -->
+  <div class="heatmap-wrap">
+    <div class="heatmap-title">🗺️ Transport Activity Heatmap (Last 7 Weeks · By Day)</div>
+    <div style="display:flex;gap:8px;margin-bottom:8px;font-size:11px;color:var(--gray)">
+      <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+    </div>
+    <div id="heatmap"></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:var(--gray)">
+      Less <div style="width:12px;height:12px;background:#F3F4F6;border-radius:3px"></div>
+      <div style="width:12px;height:12px;background:#BBF7D0;border-radius:3px"></div>
+      <div style="width:12px;height:12px;background:#34D399;border-radius:3px"></div>
+      <div style="width:12px;height:12px;background:#10B981;border-radius:3px"></div>
+      <div style="width:12px;height:12px;background:#059669;border-radius:3px"></div> More
+    </div>
+  </div>
+</div>
+
+<!-- VEHICLE VERIFICATION -->
+<div class="tab-content" id="tab-vehicles">
+  <div class="detail-card">
+    <div class="detail-card-title">📋 Vehicle Under Review: MP-09-EF-9012</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem">
+      <div><div style="font-size:12px;color:var(--gray)">Owner</div><div style="font-weight:600">Ajay Singh Transport</div></div>
+      <div><div style="font-size:12px;color:var(--gray)">Vehicle Type</div><div style="font-weight:600">Mini Bus · 30 Seats</div></div>
+      <div><div style="font-size:12px;color:var(--gray)">Submitted</div><div style="font-weight:600">Feb 15, 2024</div></div>
+    </div>
+    <div class="doc-checklist">
+      <div class="doc-item valid"><span class="doc-icon">📄</span><div><div class="doc-name">RC Certificate</div><div class="doc-status">✓ Valid · Exp: Jan 2029</div></div></div>
+      <div class="doc-item invalid"><span class="doc-icon">🛡️</span><div><div class="doc-name">Insurance</div><div class="doc-status">✗ Not Uploaded</div></div></div>
+      <div class="doc-item valid"><span class="doc-icon">✅</span><div><div class="doc-name">Fitness Certificate</div><div class="doc-status">✓ Valid · Exp: Aug 2024</div></div></div>
+      <div class="doc-item valid"><span class="doc-icon">📋</span><div><div class="doc-name">Route Permit</div><div class="doc-status">✓ Valid · Exp: Dec 2025</div></div></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:1.2rem">
+      <button class="btn-sm btn-reject" style="padding:10px 20px;font-size:13px" onclick="rtoAction('reject','MP-09-EF-9012')">✗ Reject — Insurance Missing</button>
+      <button class="btn-sm btn-flag" style="padding:10px 20px;font-size:13px" onclick="rtoAction('hold','MP-09-EF-9012')">⏸ Put on Hold</button>
+      <textarea placeholder="Add remarks for owner..." style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;resize:none;height:40px;font-family:'DM Sans',sans-serif;outline:none"></textarea>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-header">
+      <div class="table-title">🚌 All Vehicle Submissions</div>
+      <input class="search-input" type="text" placeholder="Search vehicle no...">
+    </div>
+    <table>
+      <thead><tr><th>Vehicle No.</th><th>Owner</th><th>Type</th><th>Submitted</th><th>Documents</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td><b>MP-09-AB-1234</b></td><td>Ajay Singh</td><td>Bus (AC)</td><td>Jan 10</td><td>4/4 ✓</td><td><span class="badge badge-green">Approved</span></td><td><div class="action-btns"><button class="btn-sm btn-view">View</button></div></td></tr>
+        <tr><td><b>MP-09-EF-9012</b></td><td>Ajay Singh</td><td>Mini Bus</td><td>Feb 15</td><td>3/4 ⚠</td><td><span class="badge badge-amber">Under Review</span></td><td><div class="action-btns"><button class="btn-sm btn-approve" onclick="rtoAction('approve','MP-09-EF-9012')">Approve</button><button class="btn-sm btn-reject" onclick="rtoAction('reject','MP-09-EF-9012')">Reject</button></div></td></tr>
+        <tr><td><b>MP-09-RS-1122</b></td><td>Priya Devi</td><td>Bus (Non-AC)</td><td>Mar 22</td><td>4/4 ✓</td><td><span class="badge badge-blue">Submitted</span></td><td><div class="action-btns"><button class="btn-sm btn-approve" onclick="rtoAction('approve','MP-09-RS-1122')">Approve</button><button class="btn-sm btn-reject" onclick="rtoAction('reject','MP-09-RS-1122')">Reject</button></div></td></tr>
+        <tr><td><b>MP-09-TU-3344</b></td><td>Rajesh Mehta</td><td>Tempo</td><td>Apr 1</td><td>2/4 ✗</td><td><span class="badge badge-red">Rejected</span></td><td><div class="action-btns"><button class="btn-sm btn-view">Details</button></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- LICENSE VERIFICATION -->
+<div class="tab-content" id="tab-licenses">
+  <div class="table-wrap">
+    <div class="table-header">
+      <div class="table-title">📄 Driver License Verification</div>
+      <input class="search-input" type="text" placeholder="Search by name or license no...">
+    </div>
+    <table>
+      <thead><tr><th>Driver Name</th><th>License No.</th><th>Issue Date</th><th>Expiry Date</th><th>Vehicle Category</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td><b>Suresh Yadav</b></td><td>MP09-20150045</td><td>Mar 2015</td><td>Mar 2030</td><td>HMV, PSV</td><td><span class="badge badge-green">Valid</span></td><td><div class="action-btns"><button class="btn-sm btn-view">View License</button></div></td></tr>
+        <tr><td><b>Rakesh Patel</b></td><td>MP09-20190087</td><td>Jun 2019</td><td>Jun 2024</td><td>HMV, PSV</td><td><span class="badge badge-red">Expired!</span></td><td><div class="action-btns"><button class="btn-sm btn-flag" onclick="showToast('🚨 Alert sent to vehicle owner for license renewal')">Alert Owner</button></div></td></tr>
+        <tr><td><b>Dinesh Kumar</b></td><td>MP09-20210033</td><td>Jan 2021</td><td>Jan 2026</td><td>LMV, HMV</td><td><span class="badge badge-green">Valid</span></td><td><div class="action-btns"><button class="btn-sm btn-view">View License</button></div></td></tr>
+        <tr><td><b>Anil Mishra</b></td><td>MP09-20220108</td><td>Sep 2022</td><td>Sep 2027</td><td>HMV</td><td><span class="badge badge-blue">Under Verification</span></td><td><div class="action-btns"><button class="btn-sm btn-approve" onclick="rtoAction('approve-lic','Anil Mishra')">Verify</button><button class="btn-sm btn-reject" onclick="rtoAction('reject-lic','Anil Mishra')">Reject</button></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ILLEGAL VEHICLES -->
+<div class="tab-content" id="tab-illegal">
+  <div style="background:#FEF2F2;border:1.5px solid #FCA5A5;border-radius:14px;padding:1.5rem;margin-bottom:1.5rem">
+    <div style="font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:700;color:var(--red);margin-bottom:0.8rem">🚨 Unregistered / Illegal Vehicles Detected</div>
+    <div style="font-size:13px;color:var(--red)">These vehicles are actively tracked via cell towers but have NO valid registration in GramSafar. Immediate enforcement action required.</div>
+  </div>
+  <div class="table-wrap">
+    <div class="table-header"><div class="table-title">🚨 Flagged Vehicles</div></div>
+    <table>
+      <thead><tr><th>Detected Number</th><th>First Seen</th><th>Route Operated</th><th>Last Location</th><th>Signal Towers</th><th>Issue</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td><b style="color:var(--red)">MP-09-UN-0001</b></td><td>Apr 2, 2025</td><td>Gram Chowk → Indore</td><td>Near Bypass Road</td><td>BSNL-A, B, C</td><td><span class="badge badge-red">No Registration</span></td><td><div class="action-btns"><button class="btn-sm btn-reject" onclick="issueNotice('MP-09-UN-0001')">Issue Notice</button><button class="btn-sm btn-flag" onclick="showToast('🚔 Traffic enforcement unit alerted for MP-09-UN-0001')">Alert Police</button></div></td></tr>
+        <tr><td><b style="color:var(--red)">MP-09-XX-9988</b></td><td>Apr 3, 2025</td><td>Sanwer → Indore</td><td>Sanwer Bus Stand</td><td>BSNL-D, E</td><td><span class="badge badge-amber">Expired Permit</span></td><td><div class="action-btns"><button class="btn-sm btn-reject" onclick="issueNotice('MP-09-XX-9988')">Issue Notice</button></div></td></tr>
+        <tr><td><b style="color:var(--red)">MP-09-ZZ-5544</b></td><td>Apr 4, 2025</td><td>Betma → Indore</td><td>Betma Chowk</td><td>BSNL-F, G, H</td><td><span class="badge badge-red">No Registration</span></td><td><div class="action-btns"><button class="btn-sm btn-reject" onclick="issueNotice('MP-09-ZZ-5544')">Issue Notice</button><button class="btn-sm btn-flag" onclick="showToast('🚔 Police alerted for MP-09-ZZ-5544')">Alert Police</button></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SYSTEM MONITOR -->
+<div class="tab-content" id="tab-monitor">
+  <div class="stats-row">
+    <div class="stat-card stat-green"><div class="stat-num">183</div><div class="stat-label">Vehicles Online</div></div>
+    <div class="stat-card stat-purple"><div class="stat-num">1,248</div><div class="stat-label">Cell Towers Active</div></div>
+    <div class="stat-card stat-blue"><div class="stat-num">14,280</div><div class="stat-label">Active Users</div></div>
+    <div class="stat-card stat-green"><div class="stat-num">99.2%</div><div class="stat-label">System Uptime</div></div>
+  </div>
+  <div class="monitor-grid">
+    <div class="monitor-card">
+      <div class="monitor-header"><div class="monitor-title">👥 User Activity</div></div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px"><span>Consumer logins today</span><b>12,840</b></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px"><span>Driver logins today</span><b>1,283</b></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px"><span>Owner logins today</span><b>157</b></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span>AI assistant queries</span><b>28,450</b></div>
+      </div>
+    </div>
+    <div class="monitor-card">
+      <div class="monitor-header"><div class="monitor-title">🌐 Top Routes by Usage</div></div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Gram Chowk → Indore</span><span>2,840 users</span></div><div style="height:6px;background:var(--border);border-radius:3px"><div style="height:100%;width:85%;background:var(--rto);border-radius:3px"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Sanwer → Indore</span><span>1,920 users</span></div><div style="height:6px;background:var(--border);border-radius:3px"><div style="height:100%;width:60%;background:var(--rto);border-radius:3px"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Mhow → Indore</span><span>1,450 users</span></div><div style="height:6px;background:var(--border);border-radius:3px"><div style="height:100%;width:45%;background:var(--rto);border-radius:3px"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Gram Chowk → Dewas</span><span>980 users</span></div><div style="height:6px;background:var(--border);border-radius:3px"><div style="height:100%;width:30%;background:var(--rto);border-radius:3px"></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REPORTS -->
+<div class="tab-content" id="tab-reports">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem">
+    <div style="background:white;border-radius:14px;border:1.5px solid var(--border);padding:1.2rem;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--rto)'" onmouseout="this.style.borderColor='var(--border)'" onclick="showToast('📄 Generating Vehicle Compliance Report...')">
+      <div style="font-size:2rem;margin-bottom:0.5rem">📊</div>
+      <div style="font-weight:600;margin-bottom:4px">Vehicle Compliance Report</div>
+      <div style="font-size:12px;color:var(--gray)">All registered vehicles and compliance status</div>
+    </div>
+    <div style="background:white;border-radius:14px;border:1.5px solid var(--border);padding:1.2rem;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--rto)'" onmouseout="this.style.borderColor='var(--border)'" onclick="showToast('📄 Generating Driver License Report...')">
+      <div style="font-size:2rem;margin-bottom:0.5rem">📄</div>
+      <div style="font-weight:600;margin-bottom:4px">Driver License Status</div>
+      <div style="font-size:12px;color:var(--gray)">Expired, expiring, and valid licenses</div>
+    </div>
+    <div style="background:white;border-radius:14px;border:1.5px solid var(--border);padding:1.2rem;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--rto)'" onmouseout="this.style.borderColor='var(--border)'" onclick="showToast('🚨 Generating Illegal Vehicle Report...')">
+      <div style="font-size:2rem;margin-bottom:0.5rem">🚨</div>
+      <div style="font-weight:600;margin-bottom:4px">Illegal Vehicles Log</div>
+      <div style="font-size:12px;color:var(--gray)">Unregistered/unauthorized vehicles</div>
+    </div>
+    <div style="background:white;border-radius:14px;border:1.5px solid var(--border);padding:1.2rem;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--rto)'" onmouseout="this.style.borderColor='var(--border)'" onclick="showToast('📈 Generating Transport Activity Report...')">
+      <div style="font-size:2rem;margin-bottom:0.5rem">📈</div>
+      <div style="font-weight:600;margin-bottom:4px">Transport Activity Report</div>
+      <div style="font-size:12px;color:var(--gray)">Routes, passengers, and usage data</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  function showTab(id, el) {
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.page-tab').forEach(t=>t.classList.remove('active'));
+    document.getElementById('tab-'+id).classList.add('active');
+    if(el) el.classList.add('active');
+  }
+  function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500)}
+  function rtoAction(action, vehicle){
+    const msgs = {
+      'approve': `✅ ${vehicle} APPROVED — Owner and Driver notified.`,
+      'reject': `❌ ${vehicle} REJECTED — Owner notified with reason.`,
+      'hold': `⏸ ${vehicle} placed on hold pending insurance upload.`,
+      'approve-lic': `✅ License for ${vehicle} verified and approved.`,
+      'reject-lic': `❌ License for ${vehicle} rejected — document invalid.`,
+    };
+    showToast(msgs[action] || 'Action completed');
+  }
+  function issueNotice(vehicle){showToast(`📬 Legal notice issued to operator of ${vehicle}. Enforcement copy sent to District Transport Office.`)}
+
+  // Build heatmap
+  const heatEl = document.getElementById('heatmap');
+  const levels = [0,1,2,3,4,5,3,2,4,5,3,1,2,4,5,4,3,2,1,3,4,5,4,3,2,1,3,4,5,4,3,2,4,3,2,1,4,5,3,2,4,5,3,2,1,3,5,4,3];
+  const grid = document.createElement('div');
+  grid.className = 'heatmap-grid';
+  levels.forEach((l,i) => {
+    const cell = document.createElement('div');
+    cell.className = `heatmap-cell heat-${l}`;
+    cell.textContent = l===0 ? '' : (l*40 + Math.floor(Math.random()*20));
+    cell.title = `${l*40+Math.floor(Math.random()*20)} vehicles`;
+    grid.appendChild(cell);
+  });
+  heatEl.appendChild(grid);
+</script>
+</body>
+</html>

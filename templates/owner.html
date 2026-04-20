@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GramSafar – Owner Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--saffron:#FF6B00;--saffron-glow:#FFD4A8;--green:#1A7F4B;--green-light:#22A862;--cream:#FFF8F0;--white:#fff;--dark:#1A1208;--gray:#6B7280;--border:#E5E7EB;--blue:#2563EB;--red:#DC2626;--amber:#D97706}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'DM Sans',sans-serif;background:#F8F9FA;color:var(--dark)}
+  .topbar{background:var(--blue);color:white;padding:0 1.5rem;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99}
+  .brand{font-family:'Baloo 2',cursive;font-size:20px;font-weight:800}
+  .nav-btns{display:flex;gap:6px}
+  .nav-btn{color:rgba(255,255,255,0.8);font-size:13px;text-decoration:none;padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);transition:all 0.2s}
+  .nav-btn:hover{background:rgba(255,255,255,0.15);color:white}
+
+  /* TABS */
+  .page-tabs{background:white;border-bottom:1px solid var(--border);padding:0 2rem;display:flex;gap:4px;overflow-x:auto}
+  .page-tab{padding:14px 20px;font-size:14px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--gray);transition:all 0.2s;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-1px}
+  .page-tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+  .page-tab:hover{color:var(--dark)}
+
+  .tab-content{display:none;padding:2rem;max-width:1100px;margin:0 auto}
+  .tab-content.active{display:block}
+
+  /* STATS */
+  .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem}
+  .stat-card{background:white;border-radius:14px;border:1.5px solid var(--border);padding:1.2rem;text-align:center}
+  .stat-num{font-family:'Baloo 2',cursive;font-size:2rem;font-weight:800}
+  .stat-label{font-size:12px;color:var(--gray);margin-top:2px}
+  .stat-saffron .stat-num{color:var(--saffron)}
+  .stat-green .stat-num{color:var(--green)}
+  .stat-blue .stat-num{color:var(--blue)}
+  .stat-amber .stat-num{color:var(--amber)}
+
+  /* TABLE */
+  .table-wrap{background:white;border-radius:16px;border:1.5px solid var(--border);overflow:hidden;margin-bottom:1.5rem}
+  .table-header{padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+  .table-title{font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:700}
+  .btn-add{background:var(--saffron);color:white;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+  .btn-add:hover{background:var(--saffron-light,#FF8C38)}
+  table{width:100%;border-collapse:collapse}
+  th{background:#F9FAFB;padding:10px 1.5rem;text-align:left;font-size:12px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)}
+  td{padding:12px 1.5rem;font-size:13px;border-bottom:1px solid var(--border)}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:#FAFAFA}
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+  .badge-green{background:#D1EDE2;color:var(--green)}
+  .badge-amber{background:#FEF3C7;color:var(--amber)}
+  .badge-red{background:#FEE2E2;color:var(--red)}
+  .badge-blue{background:#DBEAFE;color:var(--blue)}
+  .badge-gray{background:#F3F4F6;color:var(--gray)}
+  .action-btns{display:flex;gap:6px}
+  .btn-sm{padding:5px 10px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+  .btn-approve{background:var(--green);color:white}
+  .btn-reject{background:var(--red);color:white}
+  .btn-view{background:#F3F4F6;color:var(--dark)}
+  .btn-edit{background:#DBEAFE;color:var(--blue)}
+  .btn-sm:hover{opacity:0.85;transform:scale(1.03)}
+
+  /* FORM */
+  .form-card{background:white;border-radius:16px;border:1.5px solid var(--border);padding:2rem;margin-bottom:1.5rem}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+  .form-group{display:flex;flex-direction:column;gap:6px}
+  .form-label{font-size:13px;font-weight:600;color:var(--dark)}
+  .form-input{padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
+  .form-input:focus{border-color:var(--blue)}
+  .upload-area{border:2px dashed #D1D5DB;border-radius:10px;padding:1rem;text-align:center;cursor:pointer;position:relative;transition:all 0.2s}
+  .upload-area:hover{border-color:var(--blue);background:#EFF6FF}
+  .upload-area input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+  .form-full{grid-column:1/-1}
+  .btn-submit{background:var(--blue);color:white;border:none;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+  .btn-submit:hover{background:#1D4ED8;transform:translateY(-1px)}
+
+  /* ROUTE VIZ */
+  .route-viz{background:linear-gradient(135deg,#EFF6FF 0%,#DBEAFE 100%);border-radius:12px;padding:1.2rem;margin-top:0.8rem;display:flex;align-items:center;gap:8px;overflow-x:auto}
+  .route-stop{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0}
+  .stop-dot{width:14px;height:14px;background:var(--blue);border:2px solid white;border-radius:50%;box-shadow:0 0 0 3px rgba(37,99,235,0.2)}
+  .stop-name{font-size:10px;font-weight:600;text-align:center;max-width:60px}
+  .route-connector{height:3px;background:var(--blue);flex:1;min-width:20px;opacity:0.4;border-radius:2px}
+
+  /* TOAST */
+  .toast{position:fixed;top:70px;right:1rem;background:var(--green);color:white;padding:12px 16px;border-radius:12px;font-size:13px;z-index:1001;transform:translateX(120%);transition:transform 0.3s;max-width:300px}
+  .toast.show{transform:translateX(0)}
+
+  @media(max-width:768px){.form-grid{grid-template-columns:1fr}.stats-row{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:10px">
+    <a href="{% url 'home' %}" style="text-decoration:none;color:white;font-size:20px">🚌</a>
+    <div><div class="brand">GramSafar</div><div style="font-size:12px;opacity:0.85">Vehicle Owner Panel</div></div>
+  </div>
+  <div style="font-size:13px;background:rgba(255,255,255,0.2);padding:4px 12px;border-radius:20px">🏢 Ajay Singh Transport Co.</div>
+  <div class="nav-btns">
+    <a href="{% url 'driver-page' %}" class="nav-btn">🚗 Driver View</a>
+    <a href="{% url 'consumer-page' %}" class="nav-btn">🚌 Consumer View</a>
+    <a href="{% url 'home' %}" class="nav-btn">← Home</a>
+    <a href="{% url 'login-page' %}" class="nav-btn">Logout</a>
+  </div>
+</div>
+
+<div class="page-tabs">
+  <button class="page-tab active" onclick="showTab('overview',this)">📊 Overview</button>
+  <button class="page-tab" onclick="showTab('vehicles',this)">🚌 My Vehicles</button>
+  <button class="page-tab" onclick="showTab('drivers',this)">🚗 Drivers</button>
+  <button class="page-tab" onclick="showTab('routes',this)">🗺️ Routes & Schedule</button>
+  <button class="page-tab" onclick="showTab('addvehicle',this)">➕ Add Vehicle</button>
+  <button class="page-tab" onclick="showTab('rto',this)">🏛️ RTO Submissions</button>
+</div>
+
+<!-- OVERVIEW -->
+<div class="tab-content active" id="tab-overview">
+  <div class="stats-row">
+    <div class="stat-card stat-saffron"><div class="stat-num">8</div><div class="stat-label">Total Vehicles</div></div>
+    <div class="stat-card stat-green"><div class="stat-num">6</div><div class="stat-label">Active Today</div></div>
+    <div class="stat-card stat-blue"><div class="stat-num">12</div><div class="stat-label">Registered Drivers</div></div>
+    <div class="stat-card stat-amber"><div class="stat-num">₹18,240</div><div class="stat-label">Today's Revenue</div></div>
+    <div class="stat-card stat-green"><div class="stat-num">847</div><div class="stat-label">Passengers Today</div></div>
+  </div>
+
+  <!-- LIVE FLEET -->
+  <div class="table-wrap">
+    <div class="table-header">
+      <div class="table-title">🚌 Live Fleet Status</div>
+      <span style="font-size:12px;color:var(--gray)">Updates every 30s</span>
+    </div>
+    <table>
+      <thead><tr><th>Vehicle No.</th><th>Driver</th><th>Route</th><th>Speed</th><th>Location</th><th>Passengers</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td><b>MP-09-AB-1234</b></td><td>Suresh Yadav</td><td>Gram Chowk → Indore</td><td>42 km/h</td><td>Near Bus Stand</td><td>28/45</td><td><span class="badge badge-green">Running</span></td></tr>
+        <tr><td><b>MP-09-CD-5678</b></td><td>Rakesh Patel</td><td>Gram Chowk → Dewas</td><td>0 km/h</td><td>Gram Chowk Stop</td><td>15/45</td><td><span class="badge badge-amber">Delayed</span></td></tr>
+        <tr><td><b>MP-09-EF-9012</b></td><td>Dinesh Kumar</td><td>Main Market → Ujjain</td><td>38 km/h</td><td>Near Old Town</td><td>36/50</td><td><span class="badge badge-green">Running</span></td></tr>
+        <tr><td><b>MP-09-GH-3456</b></td><td>Ramdev Singh</td><td>Gram Chowk → Pithampur</td><td>55 km/h</td><td>Highway Section</td><td>20/40</td><td><span class="badge badge-green">Running</span></td></tr>
+        <tr><td><b>MP-09-IJ-7890</b></td><td>Vijay Sharma</td><td>Mhow → Indore Airport</td><td>60 km/h</td><td>Simrol Bypass</td><td>12/45</td><td><span class="badge badge-green">Running</span></td></tr>
+        <tr><td><b>MP-09-KL-2345</b></td><td>—</td><td>Sanwer → Indore</td><td>0 km/h</td><td>Depot</td><td>0/45</td><td><span class="badge badge-gray">Parked</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- VEHICLES -->
+<div class="tab-content" id="tab-vehicles">
+  <div class="table-wrap">
+    <div class="table-header">
+      <div class="table-title">🚌 My Vehicles</div>
+      <button class="btn-add" onclick="showTab('addvehicle',document.querySelectorAll('.page-tab')[4])">+ Add Vehicle</button>
+    </div>
+    <table>
+      <thead><tr><th>Vehicle No.</th><th>Type</th><th>Capacity</th><th>Permit Expiry</th><th>Insurance</th><th>Fitness</th><th>RTO Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td><b>MP-09-AB-1234</b></td><td>Bus (AC)</td><td>45</td><td>Dec 2025</td><td>Valid</td><td>Valid</td><td><span class="badge badge-green">Approved</span></td><td><div class="action-btns"><button class="btn-sm btn-edit" onclick="showToast('Edit vehicle MP-09-AB-1234')">Edit</button><button class="btn-sm btn-view">Track</button></div></td></tr>
+        <tr><td><b>MP-09-CD-5678</b></td><td>Bus (Non-AC)</td><td>45</td><td>Mar 2026</td><td>Valid</td><td>Valid</td><td><span class="badge badge-green">Approved</span></td><td><div class="action-btns"><button class="btn-sm btn-edit">Edit</button><button class="btn-sm btn-view">Track</button></div></td></tr>
+        <tr><td><b>MP-09-EF-9012</b></td><td>Mini Bus</td><td>30</td><td>Jun 2025</td><td>Expired!</td><td>Valid</td><td><span class="badge badge-amber">Review</span></td><td><div class="action-btns"><button class="btn-sm btn-edit">Update Docs</button></div></td></tr>
+        <tr><td><b>MP-09-MN-6789</b></td><td>Bus (Non-AC)</td><td>45</td><td>Jan 2026</td><td>Valid</td><td>Expired!</td><td><span class="badge badge-red">Suspended</span></td><td><div class="action-btns"><button class="btn-sm btn-edit">Re-submit</button></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- DRIVERS -->
+<div class="tab-content" id="tab-drivers">
+  <div class="table-wrap">
+    <div class="table-header">
+      <div class="table-title">🚗 Driver Applications</div>
+      <span class="badge badge-amber" style="font-size:13px">3 Pending Review</span>
+    </div>
+    <table>
+      <thead><tr><th>Driver Name</th><th>Phone</th><th>License No.</th><th>Experience</th><th>Assigned Vehicle</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td><b>Suresh Yadav</b></td><td>9876543210</td><td>MP09-20150045</td><td>8 years</td><td>MP-09-AB-1234</td><td><span class="badge badge-green">Approved</span></td><td><div class="action-btns"><button class="btn-sm btn-view" onclick="showToast('Viewing Suresh Yadav documents...')">View Docs</button></div></td></tr>
+        <tr><td><b>Ramesh Dubey</b></td><td>9654321078</td><td>MP09-20190087</td><td>4 years</td><td>—</td><td><span class="badge badge-amber">Pending</span></td><td><div class="action-btns"><button class="btn-sm btn-approve" onclick="approveDriver(this,'Ramesh Dubey')">Approve</button><button class="btn-sm btn-reject" onclick="rejectDriver(this,'Ramesh Dubey')">Reject</button><button class="btn-sm btn-view">Docs</button></div></td></tr>
+        <tr><td><b>Anil Mishra</b></td><td>9123456789</td><td>MP09-20220033</td><td>2 years</td><td>—</td><td><span class="badge badge-amber">Pending</span></td><td><div class="action-btns"><button class="btn-sm btn-approve" onclick="approveDriver(this,'Anil Mishra')">Approve</button><button class="btn-sm btn-reject" onclick="rejectDriver(this,'Anil Mishra')">Reject</button><button class="btn-sm btn-view">Docs</button></div></td></tr>
+        <tr><td><b>Karan Tiwari</b></td><td>9900112233</td><td>MP09-20240012</td><td>1 year</td><td>—</td><td><span class="badge badge-red">Rejected</span></td><td><div class="action-btns"><button class="btn-sm btn-view">View</button></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ROUTES -->
+<div class="tab-content" id="tab-routes">
+  <div class="form-card">
+    <div style="font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:700;margin-bottom:1.2rem">🗺️ Route: Gram Chowk → Indore Central</div>
+    <div class="route-viz">
+      <div class="route-stop"><div class="stop-dot" style="background:var(--green)"></div><div class="stop-name">Gram Chowk</div></div>
+      <div class="route-connector"></div>
+      <div class="route-stop"><div class="stop-dot"></div><div class="stop-name">Bus Stand</div></div>
+      <div class="route-connector"></div>
+      <div class="route-stop"><div class="stop-dot"></div><div class="stop-name">Simrol</div></div>
+      <div class="route-connector"></div>
+      <div class="route-stop"><div class="stop-dot"></div><div class="stop-name">Pithampur</div></div>
+      <div class="route-connector"></div>
+      <div class="route-stop"><div class="stop-dot"></div><div class="stop-name">Bypass</div></div>
+      <div class="route-connector"></div>
+      <div class="route-stop"><div class="stop-dot" style="background:var(--saffron)"></div><div class="stop-name">Indore Central</div></div>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <div class="table-header"><div class="table-title">📅 Schedule</div><button class="btn-add" onclick="addSchedule()">+ Add Time Slot</button></div>
+    <table>
+      <thead><tr><th>Route</th><th>Days</th><th>Departure</th><th>Arrival</th><th>Vehicle</th><th>Driver</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td>Gram Chowk → Indore</td><td>Mon-Sat</td><td>06:00 AM</td><td>07:30 AM</td><td>MP-09-AB-1234</td><td>Suresh Yadav</td><td><div class="action-btns"><button class="btn-sm btn-edit">Edit</button><button class="btn-sm btn-reject">Delete</button></div></td></tr>
+        <tr><td>Gram Chowk → Indore</td><td>Mon-Sun</td><td>08:30 AM</td><td>10:00 AM</td><td>MP-09-AB-1234</td><td>Suresh Yadav</td><td><div class="action-btns"><button class="btn-sm btn-edit">Edit</button><button class="btn-sm btn-reject">Delete</button></div></td></tr>
+        <tr><td>Gram Chowk → Dewas</td><td>Mon-Fri</td><td>09:00 AM</td><td>11:00 AM</td><td>MP-09-CD-5678</td><td>Rakesh Patel</td><td><div class="action-btns"><button class="btn-sm btn-edit">Edit</button><button class="btn-sm btn-reject">Delete</button></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ADD VEHICLE -->
+<div class="tab-content" id="tab-addvehicle">
+  <div class="form-card">
+    <div style="font-family:'Baloo 2',cursive;font-size:1.2rem;font-weight:700;margin-bottom:1.5rem">➕ Add New Vehicle</div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Vehicle Registration Number</label><input class="form-input" type="text" placeholder="MP-09-XX-0000"></div>
+      <div class="form-group"><label class="form-label">Vehicle Type</label><select class="form-input"><option>Bus (AC)</option><option>Bus (Non-AC)</option><option>Mini Bus</option><option>Tempo Traveller</option></select></div>
+      <div class="form-group"><label class="form-label">Seating Capacity</label><input class="form-input" type="number" placeholder="45"></div>
+      <div class="form-group"><label class="form-label">Route Assigned</label><select class="form-input"><option>Gram Chowk → Indore Central</option><option>Gram Chowk → Dewas</option><option>Gram Chowk → Pithampur</option><option>Custom Route</option></select></div>
+      <div class="form-group"><label class="form-label">RC (Registration Certificate)</label><div class="upload-area"><input type="file" accept=".pdf,.jpg,.png"><div style="font-size:20px">📄</div><div style="font-size:12px;color:var(--gray)">Upload RC · PDF, JPG, PNG</div></div></div>
+      <div class="form-group"><label class="form-label">Insurance Certificate</label><div class="upload-area"><input type="file" accept=".pdf,.jpg,.png"><div style="font-size:20px">🛡️</div><div style="font-size:12px;color:var(--gray)">Upload Insurance · PDF, JPG</div></div></div>
+      <div class="form-group"><label class="form-label">Fitness Certificate</label><div class="upload-area"><input type="file" accept=".pdf,.jpg,.png"><div style="font-size:20px">✅</div><div style="font-size:12px;color:var(--gray)">Upload Fitness Cert · PDF, JPG</div></div></div>
+      <div class="form-group"><label class="form-label">Permit (Route Permit)</label><div class="upload-area"><input type="file" accept=".pdf,.jpg,.png"><div style="font-size:20px">📋</div><div style="font-size:12px;color:var(--gray)">Upload Route Permit · PDF, JPG</div></div></div>
+      <div class="form-group form-full" style="flex-direction:row;gap:1rem;align-items:center">
+        <button class="btn-submit" onclick="submitVehicle()">✅ Submit for RTO Verification</button>
+        <span style="font-size:12px;color:var(--gray)">Vehicle will be reviewed by RTO Officer before going live</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RTO SUBMISSIONS -->
+<div class="tab-content" id="tab-rto">
+  <div class="table-wrap">
+    <div class="table-header"><div class="table-title">🏛️ RTO Submission Status</div></div>
+    <table>
+      <thead><tr><th>Vehicle No.</th><th>Submitted On</th><th>Documents</th><th>RTO Status</th><th>Officer</th><th>Remarks</th></tr></thead>
+      <tbody>
+        <tr><td><b>MP-09-AB-1234</b></td><td>Jan 10, 2024</td><td>RC, Insurance, Fitness, Permit</td><td><span class="badge badge-green">✓ Approved</span></td><td>Sharma, R.</td><td>All documents valid</td></tr>
+        <tr><td><b>MP-09-EF-9012</b></td><td>Feb 15, 2024</td><td>RC, Fitness, Permit</td><td><span class="badge badge-amber">⚠ Under Review</span></td><td>Verma, S.</td><td>Insurance missing</td></tr>
+        <tr><td><b>MP-09-MN-6789</b></td><td>Mar 1, 2024</td><td>RC, Insurance, Fitness</td><td><span class="badge badge-red">✗ Rejected</span></td><td>Sharma, R.</td><td>Fitness cert expired</td></tr>
+        <tr><td><b>MP-09-NEW-001</b></td><td>Apr 2, 2025</td><td>RC, Insurance, Fitness, Permit</td><td><span class="badge badge-blue">🔄 Submitted</span></td><td>—</td><td>Awaiting assignment</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  function showTab(id, el) {
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.page-tab').forEach(t=>t.classList.remove('active'));
+    document.getElementById('tab-'+id).classList.add('active');
+    el.classList.add('active');
+  }
+  function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500)}
+  function approveDriver(btn,name){
+    btn.closest('tr').querySelector('.badge').className='badge badge-green';
+    btn.closest('tr').querySelector('.badge').textContent='Approved';
+    btn.closest('.action-btns').innerHTML='<button class="btn-sm btn-view">View Docs</button>';
+    showToast('✅ '+name+' has been approved as a driver!');
+  }
+  function rejectDriver(btn,name){
+    btn.closest('tr').querySelector('.badge').className='badge badge-red';
+    btn.closest('tr').querySelector('.badge').textContent='Rejected';
+    btn.closest('.action-btns').innerHTML='<button class="btn-sm btn-view">View</button>';
+    showToast('❌ '+name+' application rejected.');
+  }
+  function addSchedule(){showToast('📅 Schedule editor opening... (Connect to Django backend for full functionality)')}
+  function submitVehicle(){showToast('📤 Vehicle submitted to RTO for verification! You will be notified within 2-3 working days.')}
+</script>
+</body>
+</html>
