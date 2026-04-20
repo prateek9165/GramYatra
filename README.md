@@ -57,7 +57,9 @@ gramyatra/
 │       ├── views.py        # Dashboard, Verify, Flags, LiveMap, Export
 │       ├── tasks.py        # check_expiring_documents
 │       └── urls.py
+├── templates
 │
 ├── manage.py
-├── requirements.txt
+└── requirements.txt
+
 
