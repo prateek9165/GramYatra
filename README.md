@@ -1,2 +1,2 @@
 # GramYatra
-This demo project is mainly focused on for providing proper connectivity by the means of transport to the rural areas to urban areas, small cities and to multiple villages. It will mainly behave like a link or a network that will provide service for the connections to users of cities and rural areas to others areas.
+This demo project that is mainly focused on providing proper connectivity by the means of transport to the rural areas to urban areas, small cities and to multiple villages. It will mainly behave like a link or a network that will provide service or the connections to users of cities and rural areas to others areas that will help visitors to know more deeply about the vehicles and shouldn't have to wait for multiple hours at the stop.
